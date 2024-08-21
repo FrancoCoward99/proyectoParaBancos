@@ -1,0 +1,644 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
+ */
+package View;
+
+import Model.Cliente;
+import Model.ListaDobleClientes;
+import Model.NodoCliente;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import javax.swing.JOptionPane;
+import javax.swing.Timer;
+import javax.swing.table.DefaultTableModel;
+import org.json.JSONObject;
+
+/**
+ *
+ * @author Franco Coward
+ */
+public class AtenderCliente extends javax.swing.JFrame {
+
+    private ListaDobleClientes listaPreferencial;
+    private ListaDobleClientes listaRapida;
+    private ListaDobleClientes listaGeneral;
+
+    /**
+     * Creates new form AtenderCliente
+     */
+    public AtenderCliente(ListaDobleClientes listaPreferencial, ListaDobleClientes listaRapida, ListaDobleClientes listaGeneral) {
+
+        initComponents();
+        this.setLocationRelativeTo(null);
+        this.listaPreferencial = listaPreferencial;
+        this.listaRapida = listaRapida;
+        this.listaGeneral = listaGeneral;
+        iniciarActualizacionTipoCambio();
+        String[] configuracion = leerConfiguracion();
+        lblNombreDeBanco.setText(configuracion[0]);
+        cargarClientesEnTabla(listaPreferencial);
+        if (listaPreferencial.getCabeza() != null) {
+            mostrarClienteEnAtencion(listaPreferencial.getCabeza().getCliente(), "preferencial");
+        }
+
+    }
+
+    private void iniciarActualizacionTipoCambio() {
+        // Configuramos un Timer para actualizar cada minuto
+        Timer timer = new Timer(6000, e -> actualizarTipoCambio());
+        timer.start();
+
+        // Actualizamos de inmediato al iniciar
+        actualizarTipoCambio();
+    }
+
+    private void actualizarTipoCambio() {
+        try {
+            // Realizar la solicitud HTTP para obtener el tipo de cambio
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI("https://api.exchangerate-api.com/v4/latest/USD"))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            String json = response.body();
+
+            JSONObject jsonObj = new JSONObject(json);
+            double tipoCambio = jsonObj.getJSONObject("rates").getDouble("CRC");
+
+            // Actualizamos el JLabel con el tipo de cambio
+            lblTipoCambio.setText("Tipo de cambio: " + tipoCambio);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            lblTipoCambio.setText("Error al obtener tipo de cambio");
+        }
+    }
+
+    private void actualizarFormularioPreferencial() {
+        NodoCliente nodoPreferencial = listaPreferencial.getCabeza();
+        if (nodoPreferencial != null) {
+            mostrarClienteEnAtencion(nodoPreferencial.getCliente(), "preferencial");
+        } else {
+            limpiarCampos();
+        }
+    }
+
+    private void mostrarClienteEnAtencion(Cliente cliente, String tipoCaja) {
+        txtNombreCliente.setText("Nombre: " + cliente.getNombre());
+        txtCedulaCliente.setText("Cédula: " + cliente.getId());
+        txtTramiteCliente.setText("Trámite: " + cliente.getTramite());
+        txtTiqueteCliente.setText("Tiquete: #" + cliente.getTiquete());
+    }
+
+    private void limpiarCampos() {
+        txtNombreCliente.setText("");
+        txtCedulaCliente.setText("");
+        txtTramiteCliente.setText("");
+        txtTiqueteCliente.setText("");
+    }
+
+    public String[] leerConfiguracion() {
+        String[] configuracion = new String[2];
+        try (BufferedReader reader = new BufferedReader(new FileReader("prod.txt"))) {
+            configuracion[0] = reader.readLine();
+            configuracion[1] = reader.readLine();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error al leer la configuración del archivo", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return configuracion;
+    }
+
+    private void cargarClientesEnTabla(ListaDobleClientes listaClientes) {
+        DefaultTableModel modeloTabla = (DefaultTableModel) tablaEspera.getModel();
+        modeloTabla.setRowCount(0);
+
+        NodoCliente actual = listaClientes.getCabeza();
+        while (actual != null) {
+            Cliente cliente = actual.getCliente();
+            modeloTabla.addRow(new Object[]{
+                cliente.getTiquete(),
+                cliente.getNombre(),
+                cliente.getId(),
+                cliente.getTramite(),
+                cliente.getTipo()
+            });
+            actual = actual.getSiguiente();
+        }
+    }
+
+    private void atenderClientePreferencial() {
+        Cliente cliente = listaPreferencial.atenderCliente(); // Atiende el primer cliente en la lista preferencial
+        if (cliente != null) {
+            mostrarClienteEnAtencion(cliente, "preferencial");
+            // Guardar en reportes
+            guardarReporteCliente(cliente);
+            cargarClientesEnTabla(listaPreferencial); // Refresca la tabla con los clientes restantes
+            JOptionPane.showMessageDialog(this, "Cliente preferencial atendido con éxito: " + cliente.getNombre());
+        } else {
+            JOptionPane.showMessageDialog(this, "No hay clientes en la fila preferencial.");
+        }
+    }
+
+    private void guardarReporteCliente(Cliente cliente) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("reportes.txt", true))) {
+            writer.write(cliente.toString()); // Asume que el método `toString` está bien implementado en `Cliente`
+            writer.newLine();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error al guardar el reporte del cliente.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void cargarClientesDesdeArchivo() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("prod.txt"))) {
+            String linea;
+            while ((linea = reader.readLine()) != null) {
+                // Dividir la línea por comas para obtener los datos del cliente
+                String[] datos = linea.split(",");
+                if (datos.length == 6) {
+                    String nombre = datos[0];
+                    int id = Integer.parseInt(datos[1]);
+                    int edad = Integer.parseInt(datos[2]);
+                    String tramite = datos[3];
+                    String tipo = datos[4];
+                    int tiquete = Integer.parseInt(datos[5]);
+
+                    // Crear un nuevo cliente con los datos leídos
+                    Cliente cliente = new Cliente(nombre, id, edad, tramite, tipo, tiquete);
+
+                    // Agregar el cliente a la lista correspondiente
+                    if (tipo.equals("Preferencial")) {
+                        listaPreferencial.agregarCliente(cliente);
+                    } else if (tipo.equals("Rápido")) {
+                        listaRapida.agregarCliente(cliente);
+                    } else {
+                        listaGeneral.agregarCliente(cliente);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar los clientes desde el archivo", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private String tipoFilaSeleccionada = "";
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        lblNombreDeBanco1 = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
+        lblNombreDeBanco = new javax.swing.JLabel();
+        btnIngresarCliente = new javax.swing.JButton();
+        btnAtenderCliente = new javax.swing.JButton();
+        btnRoportes = new javax.swing.JButton();
+        btnConfiguracionSistema = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        lblTipoCambio = new javax.swing.JLabel();
+        lblTitulo = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tablaEspera = new javax.swing.JTable();
+        lblSubTitulo = new javax.swing.JLabel();
+        btnAtenderPreferencial = new javax.swing.JButton();
+        lblSubTitulo1 = new javax.swing.JLabel();
+        btnAtenderNormal = new javax.swing.JButton();
+        btnAtenderRapido = new javax.swing.JButton();
+        btnAtender = new javax.swing.JButton();
+        txtCedulaCliente = new javax.swing.JTextField();
+        txtNombreCliente = new javax.swing.JTextField();
+        txtTramiteCliente = new javax.swing.JTextField();
+        txtTiqueteCliente = new javax.swing.JTextField();
+
+        lblNombreDeBanco1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        lblNombreDeBanco1.setForeground(new java.awt.Color(0, 0, 0));
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+
+        jPanel2.setBackground(new java.awt.Color(46, 156, 94));
+
+        lblNombreDeBanco.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        lblNombreDeBanco.setForeground(new java.awt.Color(0, 0, 0));
+
+        btnIngresarCliente.setBackground(new java.awt.Color(46, 156, 94));
+        btnIngresarCliente.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnIngresarCliente.setForeground(new java.awt.Color(255, 255, 255));
+        btnIngresarCliente.setText("Ingresar Cliente");
+        btnIngresarCliente.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnIngresarClienteActionPerformed(evt);
+            }
+        });
+
+        btnAtenderCliente.setBackground(new java.awt.Color(46, 156, 94));
+        btnAtenderCliente.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnAtenderCliente.setForeground(new java.awt.Color(255, 255, 255));
+        btnAtenderCliente.setText("Atender Cliente");
+
+        btnRoportes.setBackground(new java.awt.Color(46, 156, 94));
+        btnRoportes.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnRoportes.setForeground(new java.awt.Color(255, 255, 255));
+        btnRoportes.setText("Reportes");
+        btnRoportes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRoportesActionPerformed(evt);
+            }
+        });
+
+        btnConfiguracionSistema.setBackground(new java.awt.Color(46, 156, 94));
+        btnConfiguracionSistema.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnConfiguracionSistema.setForeground(new java.awt.Color(255, 255, 255));
+        btnConfiguracionSistema.setText("Configuracion");
+        btnConfiguracionSistema.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnConfiguracionSistemaActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/Logo Cajas para bancos.png"))); // NOI18N
+
+        lblTipoCambio.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        lblTipoCambio.setForeground(new java.awt.Color(0, 0, 0));
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(btnConfiguracionSistema, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnRoportes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnAtenderCliente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnIngresarCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 288, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(75, 75, 75)
+                                .addComponent(lblNombreDeBanco, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(14, 14, 14)
+                                .addComponent(jLabel1)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(57, 57, 57)
+                .addComponent(lblTipoCambio, javax.swing.GroupLayout.PREFERRED_SIZE, 182, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(51, 51, 51)
+                .addComponent(lblNombreDeBanco, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(79, 79, 79)
+                .addComponent(btnIngresarCliente)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnAtenderCliente)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnRoportes)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnConfiguracionSistema)
+                .addGap(75, 75, 75)
+                .addComponent(lblTipoCambio, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(19, 19, 19))
+        );
+
+        lblTitulo.setBackground(new java.awt.Color(255, 255, 255));
+        lblTitulo.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        lblTitulo.setForeground(new java.awt.Color(0, 0, 0));
+        lblTitulo.setText("Atencion al cliente");
+
+        tablaEspera.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "Tiquete", "Nombre", "Cedula", "Tramite", "Tipo de Cliente"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(tablaEspera);
+
+        lblSubTitulo.setForeground(new java.awt.Color(0, 0, 0));
+        lblSubTitulo.setText("Cliente en Atencion");
+
+        btnAtenderPreferencial.setText("Preferencial");
+        btnAtenderPreferencial.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAtenderPreferencialActionPerformed(evt);
+            }
+        });
+
+        lblSubTitulo1.setForeground(new java.awt.Color(0, 0, 0));
+        lblSubTitulo1.setText("Seleccione la fila que desea atender");
+
+        btnAtenderNormal.setText("Normal");
+        btnAtenderNormal.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAtenderNormalActionPerformed(evt);
+            }
+        });
+
+        btnAtenderRapido.setText("Rapido");
+        btnAtenderRapido.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAtenderRapidoActionPerformed(evt);
+            }
+        });
+
+        btnAtender.setText("Atender");
+        btnAtender.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAtenderActionPerformed(evt);
+            }
+        });
+
+        txtCedulaCliente.setBackground(new java.awt.Color(255, 255, 255));
+        txtCedulaCliente.setForeground(new java.awt.Color(0, 0, 0));
+        txtCedulaCliente.setEnabled(false);
+
+        txtNombreCliente.setBackground(new java.awt.Color(255, 255, 255));
+        txtNombreCliente.setForeground(new java.awt.Color(0, 0, 0));
+        txtNombreCliente.setEnabled(false);
+
+        txtTramiteCliente.setBackground(new java.awt.Color(255, 255, 255));
+        txtTramiteCliente.setForeground(new java.awt.Color(0, 0, 0));
+        txtTramiteCliente.setEnabled(false);
+
+        txtTiqueteCliente.setBackground(new java.awt.Color(255, 255, 255));
+        txtTiqueteCliente.setForeground(new java.awt.Color(0, 0, 0));
+        txtTiqueteCliente.setEnabled(false);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(266, 266, 266)
+                        .addComponent(lblTitulo)
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 90, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(txtNombreCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(txtTramiteCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(txtCedulaCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(txtTiqueteCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(btnAtender))
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 241, Short.MAX_VALUE)
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                        .addComponent(btnAtenderRapido)
+                                        .addComponent(btnAtenderPreferencial)
+                                        .addComponent(btnAtenderNormal))
+                                    .addGap(156, 156, 156))
+                                .addGroup(jPanel1Layout.createSequentialGroup()
+                                    .addComponent(lblSubTitulo)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(lblSubTitulo1)
+                                    .addGap(105, 105, 105)))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 557, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(94, 94, 94))))))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(29, 29, 29)
+                .addComponent(lblTitulo)
+                .addGap(33, 33, 33)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblSubTitulo)
+                    .addComponent(lblSubTitulo1))
+                .addGap(34, 34, 34)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnAtenderPreferencial)
+                    .addComponent(txtNombreCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtCedulaCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnAtenderNormal))
+                .addGap(20, 20, 20)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtTramiteCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnAtenderRapido))
+                .addGap(18, 18, 18)
+                .addComponent(txtTiqueteCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(33, 33, 33)
+                .addComponent(btnAtender)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 114, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(52, 52, 52))
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void btnAtenderPreferencialActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAtenderPreferencialActionPerformed
+        // TODO add your handling code here:
+        Cliente cliente = listaPreferencial.atenderCliente();
+        if (cliente != null) {
+            mostrarClienteEnAtencion(cliente, "preferencial");
+            JOptionPane.showMessageDialog(this, "Cliente preferencial atendido con éxito: " + cliente.getNombre());
+            actualizarFormularioPreferencial(); // Actualiza el formulario con el siguiente cliente
+        } else {
+            JOptionPane.showMessageDialog(this, "No hay clientes en la fila preferencial.");
+        }
+    }//GEN-LAST:event_btnAtenderPreferencialActionPerformed
+
+    private void btnAtenderNormalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAtenderNormalActionPerformed
+        // TODO add your handling code here:
+        tipoFilaSeleccionada = "normal";
+        NodoCliente nodo = listaGeneral.getCabeza();
+        if (nodo != null) {
+            Cliente cliente = nodo.getCliente();
+            mostrarClienteEnAtencion(cliente, tipoFilaSeleccionada);
+        } else {
+            JOptionPane.showMessageDialog(this, "No hay clientes en la fila normal");
+        }
+    }//GEN-LAST:event_btnAtenderNormalActionPerformed
+
+    private void btnAtenderRapidoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAtenderRapidoActionPerformed
+        tipoFilaSeleccionada = "rapido";
+        NodoCliente nodo = listaRapida.getCabeza();
+        if (nodo != null) {
+            Cliente cliente = nodo.getCliente();
+            mostrarClienteEnAtencion(cliente, tipoFilaSeleccionada);
+        } else {
+            JOptionPane.showMessageDialog(this, "No hay clientes en la fila rápida");
+        }
+    }//GEN-LAST:event_btnAtenderRapidoActionPerformed
+
+    private void btnAtenderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAtenderActionPerformed
+        Cliente cliente = null;
+
+        if (tipoFilaSeleccionada.equals("preferencial")) {
+            cliente = listaPreferencial.atenderCliente();
+            cargarClientesEnTabla(listaPreferencial);
+            actualizarFormularioPreferencial(); // Actualiza el formulario con el siguiente cliente
+        } else if (tipoFilaSeleccionada.equals("normal")) {
+            cliente = listaGeneral.atenderCliente();
+            cargarClientesEnTabla(listaGeneral);
+        } else if (tipoFilaSeleccionada.equals("rapido")) {
+            cliente = listaRapida.atenderCliente();
+            cargarClientesEnTabla(listaRapida);
+        }
+
+        if (cliente != null) {
+            JOptionPane.showMessageDialog(this, "Cliente atendido con éxito: " + cliente.getNombre());
+            limpiarCampos();
+
+            // Remove the client from the prod.txt file
+            try (BufferedReader reader = new BufferedReader(new FileReader("prod.txt")); BufferedWriter writer = new BufferedWriter(new FileWriter("prod.txt"))) {
+
+                String line;
+                boolean clienteRemoved = false;
+                while ((line = reader.readLine()) != null) {
+                    if (!clienteRemoved && line.contains(String.valueOf(cliente.getTiquete()))) {
+                        clienteRemoved = true;
+                    } else {
+                        writer.write(line);
+                        writer.newLine();
+                    }
+                }
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Error al actualizar el archivo prod.txt", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "No hay clientes en la fila " + tipoFilaSeleccionada);
+        }
+    }//GEN-LAST:event_btnAtenderActionPerformed
+
+    private void btnIngresarClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIngresarClienteActionPerformed
+        // TODO add your handling code here:
+        new IngresarCliente().setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnIngresarClienteActionPerformed
+
+    private void btnConfiguracionSistemaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfiguracionSistemaActionPerformed
+        // TODO add your handling code here:
+        new SolicitudConfiguracion().setVisible(true);
+        this.dispose();
+
+    }//GEN-LAST:event_btnConfiguracionSistemaActionPerformed
+
+    private void btnRoportesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRoportesActionPerformed
+        // TODO add your handling code here:
+        new Reportes(listaPreferencial, listaRapida, listaGeneral).setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnRoportesActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(AtenderCliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(AtenderCliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(AtenderCliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(AtenderCliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+        ListaDobleClientes listaPreferencial = new ListaDobleClientes();
+        ListaDobleClientes listaRapida = new ListaDobleClientes();
+        ListaDobleClientes listaGeneral = new ListaDobleClientes();
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new AtenderCliente(listaPreferencial, listaRapida, listaGeneral).setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAtender;
+    private javax.swing.JButton btnAtenderCliente;
+    private javax.swing.JButton btnAtenderNormal;
+    private javax.swing.JButton btnAtenderPreferencial;
+    private javax.swing.JButton btnAtenderRapido;
+    private javax.swing.JButton btnConfiguracionSistema;
+    private javax.swing.JButton btnIngresarCliente;
+    private javax.swing.JButton btnRoportes;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblNombreDeBanco;
+    private javax.swing.JLabel lblNombreDeBanco1;
+    private javax.swing.JLabel lblSubTitulo;
+    private javax.swing.JLabel lblSubTitulo1;
+    private javax.swing.JLabel lblTipoCambio;
+    private javax.swing.JLabel lblTitulo;
+    private javax.swing.JTable tablaEspera;
+    private javax.swing.JTextField txtCedulaCliente;
+    private javax.swing.JTextField txtNombreCliente;
+    private javax.swing.JTextField txtTiqueteCliente;
+    private javax.swing.JTextField txtTramiteCliente;
+    // End of variables declaration//GEN-END:variables
+}
