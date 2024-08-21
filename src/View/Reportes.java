@@ -10,13 +10,7 @@ import Model.NodoCliente;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import javax.swing.JOptionPane;
-import javax.swing.Timer;
-import org.json.JSONObject;
 
 /**
  *
@@ -36,122 +30,92 @@ public class Reportes extends javax.swing.JFrame {
         String[] configuracion = leerConfiguracion();
         lblNombreDeBanco.setText(configuracion[0]);
         this.setLocationRelativeTo(null);
-        iniciarActualizacionTipoCambio();
         this.listaPreferencial = listaPreferencial;
         this.listaRapida = listaRapida;
         this.listaGeneral = listaGeneral;
-
         generarReportes();
     }
 
-    private void iniciarActualizacionTipoCambio() {
-        // Configuramos un Timer para actualizar cada minuto
-        Timer timer = new Timer(6000, e -> actualizarTipoCambio());
-        timer.start();
 
-        // Actualizamos de inmediato al iniciar
-        actualizarTipoCambio();
+
+private void generarReportes() {
+    // Reporte 1: Caja que atendió la mayor cantidad de clientes
+    int totalPreferencial = listaPreferencial.getSize();
+    int totalRapida = listaRapida.getSize();
+    int totalGeneral = listaGeneral.getSize();
+
+    String cajaMayor = "Preferencial";
+    int maxClientes = totalPreferencial;
+
+    if (totalRapida > maxClientes) {
+        cajaMayor = "Rápida";
+        maxClientes = totalRapida;
     }
 
-    private void actualizarTipoCambio() {
-        try {
-            // Realizar la solicitud HTTP para obtener el tipo de cambio
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("https://api.exchangerate-api.com/v4/latest/USD"))
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            String json = response.body();
-
-            JSONObject jsonObj = new JSONObject(json);
-            double tipoCambio = jsonObj.getJSONObject("rates").getDouble("CRC");
-
-            // Actualizamos el JLabel con el tipo de cambio
-            lblTipoCambio.setText("Tipo de cambio: " + tipoCambio);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            lblTipoCambio.setText("Error al obtener tipo de cambio");
-        }
+    if (totalGeneral > maxClientes) {
+        cajaMayor = "General";
+        maxClientes = totalGeneral;
     }
 
-    private void generarReportes() {
-        // Reporte 1: Caja que atendió la mayor cantidad de clientes
-        int totalPreferencial = listaPreferencial.getSize();
-        int totalRapida = listaRapida.getSize();
-        int totalGeneral = listaGeneral.getSize();
+    txtReporte1.setText(cajaMayor + " (" + maxClientes + " clientes)");
 
-        String cajaMayor = "Preferencial";
-        int maxClientes = totalPreferencial;
+    // Reporte 2: Total de clientes atendidos
+    int totalClientesAtendidos = totalPreferencial + totalRapida + totalGeneral;
+    txtReporte2.setText(String.valueOf(totalClientesAtendidos));
 
-        if (totalRapida > maxClientes) {
-            cajaMayor = "Rápida";
-            maxClientes = totalRapida;
-        }
+    // Reporte 3: Caja con el mejor tiempo de atención promedio
+    double promedioPreferencial = calcularPromedioAtencion(listaPreferencial);
+    double promedioRapida = calcularPromedioAtencion(listaRapida);
+    double promedioGeneral = calcularPromedioAtencion(listaGeneral);
 
-        if (totalGeneral > maxClientes) {
-            cajaMayor = "General";
-            maxClientes = totalGeneral;
-        }
+    String cajaMejorTiempo = "Preferencial";
+    double mejorTiempo = promedioPreferencial;
 
-        txtReporte1.setText(cajaMayor + " (" + maxClientes + " clientes)");
-
-        // Reporte 2: Total de clientes atendidos
-        int totalClientesAtendidos = totalPreferencial + totalRapida + totalGeneral;
-        txtReporte2.setText(String.valueOf(totalClientesAtendidos));
-
-        // Reporte 3: Caja con el mejor tiempo de atención promedio
-        double promedioPreferencial = calcularPromedioAtencion(listaPreferencial);
-        double promedioRapida = calcularPromedioAtencion(listaRapida);
-        double promedioGeneral = calcularPromedioAtencion(listaGeneral);
-
-        String cajaMejorTiempo = "Preferencial";
-        double mejorTiempo = promedioPreferencial;
-
-        if (promedioRapida < mejorTiempo) {
-            cajaMejorTiempo = "Rápida";
-            mejorTiempo = promedioRapida;
-        }
-
-        if (promedioGeneral < mejorTiempo) {
-            cajaMejorTiempo = "General";
-            mejorTiempo = promedioGeneral;
-        }
-
-        txtReporte3.setText(cajaMejorTiempo + " (" + mejorTiempo + " seg)");
-
-        // Reporte 4: Tiempo promedio de atención general
-        double tiempoPromedioGeneral = (promedioPreferencial + promedioRapida + promedioGeneral) / 3;
-        txtReporte4.setText(String.format("%.2f segundos", tiempoPromedioGeneral));
+    if (promedioRapida < mejorTiempo) {
+        cajaMejorTiempo = "Rápida";
+        mejorTiempo = promedioRapida;
     }
 
-    private double calcularPromedioAtencion(ListaDobleClientes lista) {
-        NodoCliente actual = lista.getCabeza();
-        long totalTiempo = 0;
-        int contador = 0;
-
-        while (actual != null) {
-            Cliente cliente = actual.getCliente();
-            if (cliente.getHoraAtencion() != null && cliente.getHoraCreacion() != null) {
-                totalTiempo += cliente.getHoraAtencion().getSecond() - cliente.getHoraCreacion().getSecond();
-                contador++;
-            }
-            actual = actual.getSiguiente();
-        }
-
-        return contador > 0 ? (double) totalTiempo / contador : Double.MAX_VALUE;
+    if (promedioGeneral < mejorTiempo) {
+        cajaMejorTiempo = "General";
+        mejorTiempo = promedioGeneral;
     }
 
-    public String[] leerConfiguracion() {
-        String[] configuracion = new String[2];
-        try (BufferedReader reader = new BufferedReader(new FileReader("prod.txt"))) {
-            configuracion[0] = reader.readLine(); // Nombre del banco
-            configuracion[1] = reader.readLine(); // Cantidad de cajas
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Error al leer la configuración del archivo", "Error", JOptionPane.ERROR_MESSAGE);
+    txtReporte3.setText(cajaMejorTiempo + " (" + mejorTiempo + " seg)");
+
+    // Reporte 4: Tiempo promedio de atención general
+    double tiempoPromedioGeneral = (promedioPreferencial + promedioRapida + promedioGeneral) / 3;
+    txtReporte4.setText(String.format("%.2f segundos", tiempoPromedioGeneral));
+}
+
+private double calcularPromedioAtencion(ListaDobleClientes lista) {
+    NodoCliente actual = lista.getCabeza();
+    long totalTiempo = 0;
+    int contador = 0;
+
+    while (actual != null) {
+        Cliente cliente = actual.getCliente();
+        if (cliente.getHoraAtencion() != null && cliente.getHoraCreacion() != null) {
+            long tiempoAtencion = cliente.getHoraAtencion().getSecond() - cliente.getHoraCreacion().getSecond();
+            totalTiempo += tiempoAtencion;
+            contador++;
         }
-        return configuracion;
+        actual = actual.getSiguiente();
     }
+
+    return contador > 0 ? (double) totalTiempo / contador : Double.MAX_VALUE;
+}
+
+public String[] leerConfiguracion() {
+    String[] configuracion = new String[2];
+    try (BufferedReader reader = new BufferedReader(new FileReader("prod.txt"))) {
+        configuracion[0] = reader.readLine(); // Nombre del banco
+        configuracion[1] = reader.readLine(); // Cantidad de cajas
+    } catch (IOException e) {
+        JOptionPane.showMessageDialog(this, "Error al leer la configuración del archivo", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+    return configuracion;
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -182,9 +146,9 @@ public class Reportes extends javax.swing.JFrame {
         txtReporte3 = new javax.swing.JTextField();
         lblReporte4 = new javax.swing.JLabel();
         txtReporte4 = new javax.swing.JTextField();
+        btnCancelar = new javax.swing.JButton();
 
         lblTipoCambio.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        lblTipoCambio.setForeground(new java.awt.Color(0, 0, 0));
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -193,7 +157,6 @@ public class Reportes extends javax.swing.JFrame {
         jPanel2.setBackground(new java.awt.Color(46, 156, 94));
 
         lblNombreDeBanco.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        lblNombreDeBanco.setForeground(new java.awt.Color(0, 0, 0));
 
         btnIngresarCliente.setBackground(new java.awt.Color(46, 156, 94));
         btnIngresarCliente.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -231,12 +194,10 @@ public class Reportes extends javax.swing.JFrame {
         });
 
         lblNombreDeBanco1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        lblNombreDeBanco1.setForeground(new java.awt.Color(0, 0, 0));
 
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/Logo Cajas para bancos.png"))); // NOI18N
 
         lblTipoCambio1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        lblTipoCambio1.setForeground(new java.awt.Color(0, 0, 0));
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -294,11 +255,9 @@ public class Reportes extends javax.swing.JFrame {
         );
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(0, 0, 0));
         jLabel1.setText("Reportes del sistema");
 
         lblReporte1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblReporte1.setForeground(new java.awt.Color(0, 0, 0));
         lblReporte1.setText("Caja que atendio la mayor cantidad de clientes:");
 
         txtReporte1.addActionListener(new java.awt.event.ActionListener() {
@@ -308,7 +267,6 @@ public class Reportes extends javax.swing.JFrame {
         });
 
         lblReporte2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblReporte2.setForeground(new java.awt.Color(0, 0, 0));
         lblReporte2.setText("Total de clientes atendidos:");
 
         txtReporte2.addActionListener(new java.awt.event.ActionListener() {
@@ -318,7 +276,6 @@ public class Reportes extends javax.swing.JFrame {
         });
 
         lblReporte3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblReporte3.setForeground(new java.awt.Color(0, 0, 0));
         lblReporte3.setText("Caja con el mejor tiempo de atencion:");
 
         txtReporte3.addActionListener(new java.awt.event.ActionListener() {
@@ -328,12 +285,22 @@ public class Reportes extends javax.swing.JFrame {
         });
 
         lblReporte4.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblReporte4.setForeground(new java.awt.Color(0, 0, 0));
         lblReporte4.setText("Tiempo promedio de atencion:");
 
         txtReporte4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtReporte4ActionPerformed(evt);
+            }
+        });
+
+        btnCancelar.setBackground(new java.awt.Color(102, 102, 102));
+        btnCancelar.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        btnCancelar.setForeground(new java.awt.Color(255, 255, 255));
+        btnCancelar.setText("Cancelar");
+        btnCancelar.setBorder(null);
+        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelarActionPerformed(evt);
             }
         });
 
@@ -353,7 +320,8 @@ public class Reportes extends javax.swing.JFrame {
                             .addComponent(lblReporte1)
                             .addComponent(lblReporte2)
                             .addComponent(lblReporte3)
-                            .addComponent(lblReporte4))
+                            .addComponent(lblReporte4)
+                            .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txtReporte2, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -384,6 +352,8 @@ public class Reportes extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblReporte4)
                     .addComponent(txtReporte4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(40, 40, 40)
+                .addComponent(btnCancelar)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -440,6 +410,14 @@ public class Reportes extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtReporte4ActionPerformed
 
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        // TODO add your handling code here:
+        MenuPrincipal menuPrincipal = new MenuPrincipal();
+        menuPrincipal.setVisible(true);
+        this.dispose();
+
+    }//GEN-LAST:event_btnCancelarActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -456,6 +434,7 @@ public class Reportes extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAtenderCliente;
+    private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnConfiguracionSistema;
     private javax.swing.JButton btnIngresarCliente;
     private javax.swing.JButton btnRoportes;

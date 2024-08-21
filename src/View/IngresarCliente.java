@@ -12,13 +12,9 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import javax.swing.JOptionPane;
-import javax.swing.Timer;
-import org.json.JSONObject;
+
+
 
 /**
  *
@@ -26,13 +22,12 @@ import org.json.JSONObject;
  */
 public class IngresarCliente extends javax.swing.JFrame {
 
-    private ListaDobleClientes listaPreferencial = new ListaDobleClientes();
-    private ListaDobleClientes listaRapida = new ListaDobleClientes();
-    private ListaDobleClientes listaGeneral = new ListaDobleClientes();
+    private ListaDobleClientes listaPreferencial;
+    private ListaDobleClientes listaRapida;
+    private ListaDobleClientes listaGeneral;
+    private String apiUrl;
+    private String currencyName;
 
-    /**
-     * Creates new form IngresarCliente
-     */
     public IngresarCliente() {
         initComponents();
         listaPreferencial = new ListaDobleClientes();
@@ -40,44 +35,20 @@ public class IngresarCliente extends javax.swing.JFrame {
         listaGeneral = new ListaDobleClientes();
         String[] configuracion = leerConfiguracion();
         lblNombreDeBanco.setText(configuracion[0]);
-        iniciarActualizacionTipoCambio();
+        apiUrl = configuracion[1];  // URL de la API desde el archivo de configuración
+        currencyName = configuracion[2];  // Nombre de la moneda desde el archivo de configuración
+
         this.setLocationRelativeTo(null);
     }
-               private void iniciarActualizacionTipoCambio() {
-        // Configuramos un Timer para actualizar cada minuto
-        Timer timer = new Timer(6000, e -> actualizarTipoCambio());
-        timer.start();
-        
-        // Actualizamos de inmediato al iniciar
-        actualizarTipoCambio();
-    }
-               private void actualizarTipoCambio() {
-        try {
-            // Realizar la solicitud HTTP para obtener el tipo de cambio
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("https://api.exchangerate-api.com/v4/latest/USD"))
-                    .build();
-            
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            String json = response.body();
-            
-            JSONObject jsonObj = new JSONObject(json);
-            double tipoCambio = jsonObj.getJSONObject("rates").getDouble("CRC");
-            
-            // Actualizamos el JLabel con el tipo de cambio
-            lblTipoCambio.setText("Tipo de cambio: " + tipoCambio);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            lblTipoCambio.setText("Error al obtener tipo de cambio");
-        }
-    }
+
+
 
     public String[] leerConfiguracion() {
-        String[] configuracion = new String[2];
+        String[] configuracion = new String[3];
         try (BufferedReader reader = new BufferedReader(new FileReader("prod.txt"))) {
-            configuracion[0] = reader.readLine();
-            configuracion[1] = reader.readLine();
+            configuracion[0] = reader.readLine();  // Nombre del banco
+            configuracion[1] = reader.readLine();  // URL de la API
+            configuracion[2] = reader.readLine();  // Nombre de la moneda
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Error al leer la configuración del archivo", "Error", JOptionPane.ERROR_MESSAGE);
         }

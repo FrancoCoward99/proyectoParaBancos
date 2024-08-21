@@ -13,14 +13,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import javax.swing.JOptionPane;
-import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
-import org.json.JSONObject;
 
 /**
  *
@@ -32,9 +26,7 @@ public class AtenderCliente extends javax.swing.JFrame {
     private ListaDobleClientes listaRapida;
     private ListaDobleClientes listaGeneral;
 
-    /**
-     * Creates new form AtenderCliente
-     */
+
     public AtenderCliente(ListaDobleClientes listaPreferencial, ListaDobleClientes listaRapida, ListaDobleClientes listaGeneral) {
 
         initComponents();
@@ -42,46 +34,18 @@ public class AtenderCliente extends javax.swing.JFrame {
         this.listaPreferencial = listaPreferencial;
         this.listaRapida = listaRapida;
         this.listaGeneral = listaGeneral;
-        iniciarActualizacionTipoCambio();
         String[] configuracion = leerConfiguracion();
         lblNombreDeBanco.setText(configuracion[0]);
         cargarClientesEnTabla(listaPreferencial);
+        cargarClientesEnTabla(listaRapida);
+        cargarClientesEnTabla(listaGeneral);
         if (listaPreferencial.getCabeza() != null) {
             mostrarClienteEnAtencion(listaPreferencial.getCabeza().getCliente(), "preferencial");
         }
-
     }
 
-    private void iniciarActualizacionTipoCambio() {
-        // Configuramos un Timer para actualizar cada minuto
-        Timer timer = new Timer(6000, e -> actualizarTipoCambio());
-        timer.start();
+  
 
-        // Actualizamos de inmediato al iniciar
-        actualizarTipoCambio();
-    }
-
-    private void actualizarTipoCambio() {
-        try {
-            // Realizar la solicitud HTTP para obtener el tipo de cambio
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("https://api.exchangerate-api.com/v4/latest/USD"))
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            String json = response.body();
-
-            JSONObject jsonObj = new JSONObject(json);
-            double tipoCambio = jsonObj.getJSONObject("rates").getDouble("CRC");
-
-            // Actualizamos el JLabel con el tipo de cambio
-            lblTipoCambio.setText("Tipo de cambio: " + tipoCambio);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            lblTipoCambio.setText("Error al obtener tipo de cambio");
-        }
-    }
 
     private void actualizarFormularioPreferencial() {
         NodoCliente nodoPreferencial = listaPreferencial.getCabeza();
@@ -136,12 +100,11 @@ public class AtenderCliente extends javax.swing.JFrame {
     }
 
     private void atenderClientePreferencial() {
-        Cliente cliente = listaPreferencial.atenderCliente(); // Atiende el primer cliente en la lista preferencial
+        Cliente cliente = listaPreferencial.atenderCliente(); 
         if (cliente != null) {
             mostrarClienteEnAtencion(cliente, "preferencial");
-            // Guardar en reportes
             guardarReporteCliente(cliente);
-            cargarClientesEnTabla(listaPreferencial); // Refresca la tabla con los clientes restantes
+            cargarClientesEnTabla(listaPreferencial); 
             JOptionPane.showMessageDialog(this, "Cliente preferencial atendido con éxito: " + cliente.getNombre());
         } else {
             JOptionPane.showMessageDialog(this, "No hay clientes en la fila preferencial.");
@@ -150,7 +113,7 @@ public class AtenderCliente extends javax.swing.JFrame {
 
     private void guardarReporteCliente(Cliente cliente) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("reportes.txt", true))) {
-            writer.write(cliente.toString()); // Asume que el método `toString` está bien implementado en `Cliente`
+            writer.write(cliente.toString());
             writer.newLine();
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Error al guardar el reporte del cliente.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -161,7 +124,6 @@ public class AtenderCliente extends javax.swing.JFrame {
         try (BufferedReader reader = new BufferedReader(new FileReader("prod.txt"))) {
             String linea;
             while ((linea = reader.readLine()) != null) {
-                // Dividir la línea por comas para obtener los datos del cliente
                 String[] datos = linea.split(",");
                 if (datos.length == 6) {
                     String nombre = datos[0];
@@ -171,10 +133,8 @@ public class AtenderCliente extends javax.swing.JFrame {
                     String tipo = datos[4];
                     int tiquete = Integer.parseInt(datos[5]);
 
-                    // Crear un nuevo cliente con los datos leídos
                     Cliente cliente = new Cliente(nombre, id, edad, tramite, tipo, tiquete);
 
-                    // Agregar el cliente a la lista correspondiente
                     if (tipo.equals("Preferencial")) {
                         listaPreferencial.agregarCliente(cliente);
                     } else if (tipo.equals("Rápido")) {
@@ -187,6 +147,7 @@ public class AtenderCliente extends javax.swing.JFrame {
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Error al cargar los clientes desde el archivo", "Error", JOptionPane.ERROR_MESSAGE);
         }
+    
     }
 
     private String tipoFilaSeleccionada = "";
@@ -209,7 +170,6 @@ public class AtenderCliente extends javax.swing.JFrame {
         btnRoportes = new javax.swing.JButton();
         btnConfiguracionSistema = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
-        lblTipoCambio = new javax.swing.JLabel();
         lblTitulo = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tablaEspera = new javax.swing.JTable();
@@ -223,9 +183,9 @@ public class AtenderCliente extends javax.swing.JFrame {
         txtNombreCliente = new javax.swing.JTextField();
         txtTramiteCliente = new javax.swing.JTextField();
         txtTiqueteCliente = new javax.swing.JTextField();
+        btnCancelar = new javax.swing.JButton();
 
         lblNombreDeBanco1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        lblNombreDeBanco1.setForeground(new java.awt.Color(0, 0, 0));
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -234,7 +194,6 @@ public class AtenderCliente extends javax.swing.JFrame {
         jPanel2.setBackground(new java.awt.Color(46, 156, 94));
 
         lblNombreDeBanco.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        lblNombreDeBanco.setForeground(new java.awt.Color(0, 0, 0));
 
         btnIngresarCliente.setBackground(new java.awt.Color(46, 156, 94));
         btnIngresarCliente.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -273,22 +232,12 @@ public class AtenderCliente extends javax.swing.JFrame {
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/Logo Cajas para bancos.png"))); // NOI18N
 
-        lblTipoCambio.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        lblTipoCambio.setForeground(new java.awt.Color(0, 0, 0));
-
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(btnConfiguracionSistema, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnRoportes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnAtenderCliente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnIngresarCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 288, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel2Layout.createSequentialGroup()
@@ -297,12 +246,15 @@ public class AtenderCliente extends javax.swing.JFrame {
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addGap(14, 14, 14)
                                 .addComponent(jLabel1)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(btnConfiguracionSistema, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnRoportes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnAtenderCliente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnIngresarCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 288, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap())
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(57, 57, 57)
-                .addComponent(lblTipoCambio, javax.swing.GroupLayout.PREFERRED_SIZE, 182, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -317,8 +269,6 @@ public class AtenderCliente extends javax.swing.JFrame {
                 .addComponent(btnRoportes)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnConfiguracionSistema)
-                .addGap(75, 75, 75)
-                .addComponent(lblTipoCambio, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(19, 19, 19))
@@ -326,7 +276,6 @@ public class AtenderCliente extends javax.swing.JFrame {
 
         lblTitulo.setBackground(new java.awt.Color(255, 255, 255));
         lblTitulo.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        lblTitulo.setForeground(new java.awt.Color(0, 0, 0));
         lblTitulo.setText("Atencion al cliente");
 
         tablaEspera.setModel(new javax.swing.table.DefaultTableModel(
@@ -350,7 +299,6 @@ public class AtenderCliente extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(tablaEspera);
 
-        lblSubTitulo.setForeground(new java.awt.Color(0, 0, 0));
         lblSubTitulo.setText("Cliente en Atencion");
 
         btnAtenderPreferencial.setText("Preferencial");
@@ -360,7 +308,6 @@ public class AtenderCliente extends javax.swing.JFrame {
             }
         });
 
-        lblSubTitulo1.setForeground(new java.awt.Color(0, 0, 0));
         lblSubTitulo1.setText("Seleccione la fila que desea atender");
 
         btnAtenderNormal.setText("Normal");
@@ -384,21 +331,24 @@ public class AtenderCliente extends javax.swing.JFrame {
             }
         });
 
-        txtCedulaCliente.setBackground(new java.awt.Color(255, 255, 255));
-        txtCedulaCliente.setForeground(new java.awt.Color(0, 0, 0));
         txtCedulaCliente.setEnabled(false);
 
-        txtNombreCliente.setBackground(new java.awt.Color(255, 255, 255));
-        txtNombreCliente.setForeground(new java.awt.Color(0, 0, 0));
         txtNombreCliente.setEnabled(false);
 
-        txtTramiteCliente.setBackground(new java.awt.Color(255, 255, 255));
-        txtTramiteCliente.setForeground(new java.awt.Color(0, 0, 0));
         txtTramiteCliente.setEnabled(false);
 
-        txtTiqueteCliente.setBackground(new java.awt.Color(255, 255, 255));
-        txtTiqueteCliente.setForeground(new java.awt.Color(0, 0, 0));
         txtTiqueteCliente.setEnabled(false);
+
+        btnCancelar.setBackground(new java.awt.Color(102, 102, 102));
+        btnCancelar.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        btnCancelar.setForeground(new java.awt.Color(255, 255, 255));
+        btnCancelar.setText("Cancelar");
+        btnCancelar.setBorder(null);
+        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelarActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -408,12 +358,8 @@ public class AtenderCliente extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(266, 266, 266)
-                        .addComponent(lblTitulo)
-                        .addContainerGap())
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 90, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 87, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
@@ -422,7 +368,8 @@ public class AtenderCliente extends javax.swing.JFrame {
                                         .addComponent(txtTramiteCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(txtCedulaCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(txtTiqueteCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(btnAtender))
+                                        .addComponent(btnAtender)
+                                        .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 241, Short.MAX_VALUE)
                                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                         .addComponent(btnAtenderRapido)
@@ -436,7 +383,11 @@ public class AtenderCliente extends javax.swing.JFrame {
                                     .addGap(105, 105, 105)))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 557, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(94, 94, 94))))))
+                                .addGap(94, 94, 94))))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(266, 266, 266)
+                        .addComponent(lblTitulo)
+                        .addContainerGap())))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -464,7 +415,9 @@ public class AtenderCliente extends javax.swing.JFrame {
                 .addComponent(txtTiqueteCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(33, 33, 33)
                 .addComponent(btnAtender)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 114, Short.MAX_VALUE)
+                .addGap(26, 26, 26)
+                .addComponent(btnCancelar)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 63, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(52, 52, 52))
         );
@@ -579,6 +532,13 @@ public class AtenderCliente extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_btnRoportesActionPerformed
 
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        // TODO add your handling code here:
+        MenuPrincipal menuPrincipal = new MenuPrincipal();
+        menuPrincipal.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnCancelarActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -622,6 +582,7 @@ public class AtenderCliente extends javax.swing.JFrame {
     private javax.swing.JButton btnAtenderNormal;
     private javax.swing.JButton btnAtenderPreferencial;
     private javax.swing.JButton btnAtenderRapido;
+    private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnConfiguracionSistema;
     private javax.swing.JButton btnIngresarCliente;
     private javax.swing.JButton btnRoportes;
@@ -633,7 +594,6 @@ public class AtenderCliente extends javax.swing.JFrame {
     private javax.swing.JLabel lblNombreDeBanco1;
     private javax.swing.JLabel lblSubTitulo;
     private javax.swing.JLabel lblSubTitulo1;
-    private javax.swing.JLabel lblTipoCambio;
     private javax.swing.JLabel lblTitulo;
     private javax.swing.JTable tablaEspera;
     private javax.swing.JTextField txtCedulaCliente;

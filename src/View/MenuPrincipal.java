@@ -23,9 +23,10 @@ import org.json.JSONObject;
  * @author Franco Coward
  */
 public class MenuPrincipal extends javax.swing.JFrame {
- private ListaDobleClientes listaPreferencial;
+    private ListaDobleClientes listaPreferencial;
     private ListaDobleClientes listaRapida;
     private ListaDobleClientes listaGeneral;
+
     /**
      * Creates new form MenuPrincipal
      */
@@ -36,19 +37,18 @@ public class MenuPrincipal extends javax.swing.JFrame {
         listaPreferencial = new ListaDobleClientes();
         listaRapida = new ListaDobleClientes();
         listaGeneral = new ListaDobleClientes();
-         iniciarActualizacionTipoCambio();
+        iniciarActualizacionTipoCambio();
         this.setLocationRelativeTo(null);
     }
 
-            private void iniciarActualizacionTipoCambio() {
-        // Configuramos un Timer para actualizar cada minuto
-        Timer timer = new Timer(6000, e -> actualizarTipoCambio());
+    private void iniciarActualizacionTipoCambio() {
+        Timer timer = new Timer(43200000, e -> actualizarTipoCambio()); // 12 horas en milisegundos
+        timer.setInitialDelay(0); // Inicia la primera actualización de inmediato
         timer.start();
-        
-        // Actualizamos de inmediato al iniciar
-        actualizarTipoCambio();
+     
     }
-               private void actualizarTipoCambio() {
+
+    private void actualizarTipoCambio() {
         try {
             // Realizar la solicitud HTTP para obtener el tipo de cambio
             HttpClient client = HttpClient.newHttpClient();
@@ -69,6 +69,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
             lblTipoCambio.setText("Error al obtener tipo de cambio");
         }
     }
+
     public String[] leerConfiguracion() {
         String[] configuracion = new String[2];
         try (BufferedReader reader = new BufferedReader(new FileReader("prod.txt"))) {
@@ -79,7 +80,6 @@ public class MenuPrincipal extends javax.swing.JFrame {
         }
         return configuracion;
     }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

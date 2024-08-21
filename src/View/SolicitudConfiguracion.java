@@ -42,7 +42,8 @@ public class SolicitudConfiguracion extends javax.swing.JFrame {
         txtNombreBanco = new javax.swing.JTextField();
         txtCantidadCajas = new javax.swing.JTextField();
         lblNombreBanco1 = new javax.swing.JLabel();
-        btnEntrar = new javax.swing.JButton();
+        btnEntrar1 = new javax.swing.JButton();
+        btnCancelar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -74,15 +75,12 @@ public class SolicitudConfiguracion extends javax.swing.JFrame {
         );
 
         lblTitulo.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        lblTitulo.setForeground(new java.awt.Color(0, 0, 0));
         lblTitulo.setText("Cajas para Bancos");
 
         lblTituloInfo.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblTituloInfo.setForeground(new java.awt.Color(0, 0, 0));
         lblTituloInfo.setText("Ingrese la informacion para continuar:");
 
         lblNombreBanco.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblNombreBanco.setForeground(new java.awt.Color(0, 0, 0));
         lblNombreBanco.setText("Ingrese el nombre del banco:");
 
         txtNombreBanco.addActionListener(new java.awt.event.ActionListener() {
@@ -98,17 +96,27 @@ public class SolicitudConfiguracion extends javax.swing.JFrame {
         });
 
         lblNombreBanco1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblNombreBanco1.setForeground(new java.awt.Color(0, 0, 0));
         lblNombreBanco1.setText("Ingrese la cantidad de cajas diponibles:");
 
-        btnEntrar.setBackground(new java.awt.Color(46, 156, 94));
-        btnEntrar.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        btnEntrar.setForeground(new java.awt.Color(255, 255, 255));
-        btnEntrar.setText("Entrar");
-        btnEntrar.setBorder(null);
-        btnEntrar.addActionListener(new java.awt.event.ActionListener() {
+        btnEntrar1.setBackground(new java.awt.Color(46, 156, 94));
+        btnEntrar1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        btnEntrar1.setForeground(new java.awt.Color(255, 255, 255));
+        btnEntrar1.setText("Entrar");
+        btnEntrar1.setBorder(null);
+        btnEntrar1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnEntrarActionPerformed(evt);
+                btnEntrar1ActionPerformed(evt);
+            }
+        });
+
+        btnCancelar.setBackground(new java.awt.Color(102, 102, 102));
+        btnCancelar.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        btnCancelar.setForeground(new java.awt.Color(255, 255, 255));
+        btnCancelar.setText("Cancelar");
+        btnCancelar.setBorder(null);
+        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelarActionPerformed(evt);
             }
         });
 
@@ -118,10 +126,6 @@ public class SolicitudConfiguracion extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addContainerGap(180, Short.MAX_VALUE)
-                        .addComponent(lblTitulo)
-                        .addGap(170, 170, 170))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(52, 52, 52)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -130,10 +134,23 @@ public class SolicitudConfiguracion extends javax.swing.JFrame {
                                 .addComponent(txtNombreBanco)
                                 .addComponent(txtCantidadCajas)
                                 .addComponent(lblNombreBanco1))
-                            .addComponent(lblTituloInfo)
-                            .addComponent(btnEntrar, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(lblTituloInfo))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addContainerGap(180, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addComponent(lblTitulo)
+                                .addGap(170, 170, 170))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(158, 158, 158)))))
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGap(62, 62, 62)
+                    .addComponent(btnEntrar1, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(832, Short.MAX_VALUE)))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -151,9 +168,14 @@ public class SolicitudConfiguracion extends javax.swing.JFrame {
                 .addComponent(lblNombreBanco1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtCantidadCajas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(49, 49, 49)
-                .addComponent(btnEntrar)
-                .addContainerGap(187, Short.MAX_VALUE))
+                .addGap(56, 56, 56)
+                .addComponent(btnCancelar)
+                .addContainerGap(180, Short.MAX_VALUE))
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                    .addContainerGap(333, Short.MAX_VALUE)
+                    .addComponent(btnEntrar1)
+                    .addGap(177, 177, 177)))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -170,42 +192,6 @@ public class SolicitudConfiguracion extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnEntrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEntrarActionPerformed
-    String nombreBanco = txtNombreBanco.getText();
-    int cantidadCajas;
-
-    // Validar que el nombre del banco no esté vacío
-    if (nombreBanco.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Por favor, ingrese el nombre del banco.", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-
-    // Validar la cantidad de cajas
-    try {
-        cantidadCajas = Integer.parseInt(txtCantidadCajas.getText());
-        if (cantidadCajas < 3) {
-            JOptionPane.showMessageDialog(this, "Debe haber al menos 3 cajas disponibles.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-    } catch (NumberFormatException e) {
-        JOptionPane.showMessageDialog(this, "Ingrese un número válido para la cantidad de cajas.", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-
-    // Guardar la información en el archivo prod.txt
-    try (BufferedWriter writer = new BufferedWriter(new FileWriter("prod.txt"))) {
-        writer.write(nombreBanco + "\n" + cantidadCajas+"\n");
-    } catch (IOException ex) {
-        JOptionPane.showMessageDialog(this, "Error al guardar la configuración en el archivo", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-
-    // Abrir la ventana principal o la siguiente ventana
-    MenuPrincipal menuPrincipal = new MenuPrincipal();
-    menuPrincipal.setVisible(true);
-    this.dispose(); // Cerrar la ventana actual
-    }//GEN-LAST:event_btnEntrarActionPerformed
-
     private void txtNombreBancoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNombreBancoActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtNombreBancoActionPerformed
@@ -213,6 +199,18 @@ public class SolicitudConfiguracion extends javax.swing.JFrame {
     private void txtCantidadCajasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCantidadCajasActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtCantidadCajasActionPerformed
+
+    private void btnEntrar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEntrar1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnEntrar1ActionPerformed
+
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        // TODO add your handling code here:
+        MenuPrincipal menuPrincipal = new MenuPrincipal();
+        menuPrincipal.setVisible(true);
+        this.dispose();
+
+    }//GEN-LAST:event_btnCancelarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -250,7 +248,8 @@ public class SolicitudConfiguracion extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnEntrar;
+    private javax.swing.JButton btnCancelar;
+    private javax.swing.JButton btnEntrar1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
