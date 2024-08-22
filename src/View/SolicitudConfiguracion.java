@@ -14,6 +14,7 @@ import javax.swing.JOptionPane;
  *
  * @author Franco Coward
  */
+
 public class SolicitudConfiguracion extends javax.swing.JFrame {
 
     /**
@@ -202,6 +203,23 @@ public class SolicitudConfiguracion extends javax.swing.JFrame {
 
     private void btnEntrar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEntrar1ActionPerformed
         // TODO add your handling code here:
+        String nombreBanco = txtNombreBanco.getText().trim();
+        String cantidadCajas = txtCantidadCajas.getText().trim();
+
+        if (nombreBanco.isEmpty() || cantidadCajas.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, complete todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
+        } else {
+            // Actualizamos el archivo de configuración
+            actualizarArchivoConfiguracion(nombreBanco, cantidadCajas);
+
+            // Abrimos el menú principal
+            MenuPrincipal menuPrincipal = new MenuPrincipal();
+            menuPrincipal.setVisible(true);
+            this.dispose();
+        }
+    
+
+
     }//GEN-LAST:event_btnEntrar1ActionPerformed
 
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
@@ -210,42 +228,63 @@ public class SolicitudConfiguracion extends javax.swing.JFrame {
         menuPrincipal.setVisible(true);
         this.dispose();
 
+
     }//GEN-LAST:event_btnCancelarActionPerformed
 
+  private void actualizarArchivoConfiguracion(String nombreBanco, String cantidadCajas) {
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter("prod.txt", false))) {
+        // Borra el contenido actual y escribe la nueva configuración
+        writer.write(nombreBanco);
+        writer.newLine();
+        writer.write(cantidadCajas);
+        writer.newLine();
+        writer.write("=================================");
+        writer.newLine();
+
+        JOptionPane.showMessageDialog(this, "Configuración actualizada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+    } catch (IOException e) {
+        JOptionPane.showMessageDialog(this, "Error al actualizar la configuración.", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+    
+    
+    
+    
+    
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+    /* Set the Nimbus look and feel */
+    //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+    /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
+     */
+    try {
+        for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+            if ("Nimbus".equals(info.getName())) {
+                javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                break;
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(SolicitudConfiguracion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(SolicitudConfiguracion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(SolicitudConfiguracion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(SolicitudConfiguracion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new SolicitudConfiguracion().setVisible(true);
-            }
-        });
+    } catch (ClassNotFoundException ex) {
+        java.util.logging.Logger.getLogger(SolicitudConfiguracion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+    } catch (InstantiationException ex) {
+        java.util.logging.Logger.getLogger(SolicitudConfiguracion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+    } catch (IllegalAccessException ex) {
+        java.util.logging.Logger.getLogger(SolicitudConfiguracion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+    } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        java.util.logging.Logger.getLogger(SolicitudConfiguracion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
     }
+    //</editor-fold>
+
+    /* Create and display the form */
+    java.awt.EventQueue.invokeLater(new Runnable() {
+        public void run() {
+            new SolicitudConfiguracion().setVisible(true);
+        }
+    });
+}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancelar;
