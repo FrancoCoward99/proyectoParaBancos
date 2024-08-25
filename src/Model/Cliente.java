@@ -111,7 +111,7 @@ public class Cliente {
                 ", tramite='" + tramite + '\'' +
                 ", tipo='" + tipo + '\'' +
                 ", horaCreacion=" + horaCreacion +
-                ", horaAtencion=" + horaAtencion +
+                ", horaAtencion=" + (horaAtencion != null ? horaAtencion: "No atendido") +
                 '}';
     }
 }

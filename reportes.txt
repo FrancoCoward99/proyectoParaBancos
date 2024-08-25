@@ -1,0 +1,3 @@
+Cliente{nombre='Hugo', id=801090342, edad=60, tramite='Depositos', tipo='Preferencial', horaCreacion=2024-08-25T01:10:05.096581400, horaAtencion=2024-08-25T01:10:21.419756800}
+Cliente{nombre='Stella', id=801090321, edad=60, tramite='Retiros', tipo='Preferencial', horaCreacion=2024-08-25T01:10:16.106924900, horaAtencion=2024-08-25T01:10:29.587814400}
+Cliente{nombre='Daniela', id=801090347, edad=30, tramite='Retiros', tipo='Normal', horaCreacion=2024-08-25T01:09:54.748430200, horaAtencion=2024-08-25T01:10:37.148324400}

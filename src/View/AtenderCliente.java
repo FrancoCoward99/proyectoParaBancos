@@ -26,37 +26,49 @@ public class AtenderCliente extends javax.swing.JFrame {
     private ListaDobleClientes listaRapida;
     private ListaDobleClientes listaGeneral;
 
-
     public AtenderCliente(ListaDobleClientes listaPreferencial, ListaDobleClientes listaRapida, ListaDobleClientes listaGeneral) {
 
         initComponents();
         this.setLocationRelativeTo(null);
+        limpiarReportesTxt(); //Limpiar reportes.txt al iniciar
         this.listaPreferencial = listaPreferencial;
         this.listaRapida = listaRapida;
         this.listaGeneral = listaGeneral;
         String[] configuracion = leerConfiguracion();
         lblNombreDeBanco.setText(configuracion[0]);
+
+        //Cargar clientes desde el archivo cada vez que se abra la pantalla de atención
+        //cargarClientesDesdeArchivo();
         cargarClientesEnTabla(listaPreferencial);
         cargarClientesEnTabla(listaRapida);
         cargarClientesEnTabla(listaGeneral);
+
         if (listaPreferencial.getCabeza() != null) {
             mostrarClienteEnAtencion(listaPreferencial.getCabeza().getCliente(), "preferencial");
+            tipoFilaSeleccionada = "preferencial";
         }
     }
 
-  
-
+    private void limpiarReportesTxt() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("reportes.txt"))) {
+            //Simplemente abrimos el archivo en modo de escritura para vaciar su contenido
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error al limpiar el archivo reportes.txt", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
     private void actualizarFormularioPreferencial() {
         NodoCliente nodoPreferencial = listaPreferencial.getCabeza();
         if (nodoPreferencial != null) {
             mostrarClienteEnAtencion(nodoPreferencial.getCliente(), "preferencial");
+            tipoFilaSeleccionada = "preferencial";
         } else {
             limpiarCampos();
         }
     }
 
     private void mostrarClienteEnAtencion(Cliente cliente, String tipoCaja) {
+        this.clienteEnAtencion = cliente;  //para poder mantener el cliente actual
         txtNombreCliente.setText("Nombre: " + cliente.getNombre());
         txtCedulaCliente.setText("Cédula: " + cliente.getId());
         txtTramiteCliente.setText("Trámite: " + cliente.getTramite());
@@ -100,24 +112,91 @@ public class AtenderCliente extends javax.swing.JFrame {
     }
 
     private void atenderClientePreferencial() {
-        Cliente cliente = listaPreferencial.atenderCliente(); 
+        Cliente cliente = listaPreferencial.atenderCliente();
         if (cliente != null) {
+            cliente.setHoraAtencion();
             mostrarClienteEnAtencion(cliente, "preferencial");
             guardarReporteCliente(cliente);
-            cargarClientesEnTabla(listaPreferencial); 
+            cargarClientesEnTabla(listaPreferencial);
+            actualizarProdTxt(cliente);
             JOptionPane.showMessageDialog(this, "Cliente preferencial atendido con éxito: " + cliente.getNombre());
         } else {
             JOptionPane.showMessageDialog(this, "No hay clientes en la fila preferencial.");
         }
     }
 
+    /* private void atenderClienteRapido() {
+        Cliente cliente = listaRapida.atenderCliente();
+        if (cliente != null) {
+            cliente.setHoraAtencion();
+            mostrarClienteEnAtencion(cliente, "rapido");
+            guardarReporteCliente(cliente);
+            cargarClientesEnTabla(listaRapida);
+            actualizarProdTxt(cliente);
+            JOptionPane.showMessageDialog(this, "Cliente rápido atendido con éxito: " + cliente.getNombre());
+            //cargarClientesEnTabla(listaRapida); // Actualiza la tabla para mostrar el cambio
+            actualizarProdTxt(cliente);
+        } else {
+            JOptionPane.showMessageDialog(this, "No hay clientes en la fila rápida");
+        }
+    }*/
+    private void actualizarProdTxt(Cliente clienteAtendido) {
+        File inputFile = new File("prod.txt");
+        File tempFile = new File("prodTemp.txt");
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile)); BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (!line.contains(String.valueOf(clienteAtendido.getTiquete()))) {
+                    writer.write(line);
+                    writer.newLine();
+                }
+            }
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error al actualizar el archivo prod.txt", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+        //Eliminar el archivo original y renombrar el temporal
+        if (inputFile.delete()) {
+            tempFile.renameTo(inputFile);
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al eliminar el archivo original prod.txt", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private void guardarReporteCliente(Cliente cliente) {
+        // Verificar que el cliente no sea nulo antes de intentar guardarlo
+        if (cliente == null) {
+            JOptionPane.showMessageDialog(this, "No hay cliente para guardar en el reporte.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        //Establecer la hora de atención antes de guardar
+        cliente.setHoraAtencion();
+        //Intentar escribir en el archivo reportes.txt
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("reportes.txt", true))) {
             writer.write(cliente.toString());
             writer.newLine();
+            writer.flush();
+            //JOptionPane.showMessageDialog(this,"Reporte guardado exitosamente.","Exito",JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Error al guardar el reporte del cliente.", "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al guardar el reporte del client: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private boolean existeClienteEnLista(Cliente cliente, ListaDobleClientes listaClientes) {
+        NodoCliente actual = listaClientes.getCabeza();
+        while (actual != null) {
+            Cliente clienteEnLista = actual.getCliente();
+            // Compara el tiquete o cualquier otro identificador único del cliente
+            if (clienteEnLista.getTiquete() == cliente.getTiquete()) {
+                return true;
+            }
+            actual = actual.getSiguiente();
+        }
+        return false;
     }
 
     private void cargarClientesDesdeArchivo() {
@@ -135,22 +214,39 @@ public class AtenderCliente extends javax.swing.JFrame {
 
                     Cliente cliente = new Cliente(nombre, id, edad, tramite, tipo, tiquete);
 
-                    if (tipo.equals("Preferencial")) {
-                        listaPreferencial.agregarCliente(cliente);
-                    } else if (tipo.equals("Rápido")) {
-                        listaRapida.agregarCliente(cliente);
-                    } else {
-                        listaGeneral.agregarCliente(cliente);
+                    //Evitar duplicados: agregar solo si no existe en ninguna lista
+                    if (!existeClienteEnLista(cliente, listaPreferencial)
+                            && !existeClienteEnLista(cliente, listaRapida)
+                            && !existeClienteEnLista(cliente, listaGeneral)) {
+
+                        if (tipo.equals("Preferencial")) {
+                            listaPreferencial.agregarCliente(cliente);
+                        } else if (tipo.equals("Rapido")) {
+                            listaRapida.agregarCliente(cliente);
+                        } else if (tipo.equals("Normal")) {
+                            listaGeneral.agregarCliente(cliente);
+                        }
                     }
                 }
             }
+            // cargarClientesEnTabla(listaPreferencial);
+            //cargarClientesEnTabla(listaRapida);
+            //cargarClientesEnTabla(listaGeneral);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Error al cargar los clientes desde el archivo", "Error", JOptionPane.ERROR_MESSAGE);
         }
-    
+
     }
 
     private String tipoFilaSeleccionada = "";
+
+    @Override
+    public void setVisible(boolean visible) {
+        if (visible) {
+            cargarClientesDesdeArchivo(); // Cargar clientes desde prod.txt cada vez que la ventana sea visible
+        }
+        super.setVisible(visible);
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -442,9 +538,14 @@ public class AtenderCliente extends javax.swing.JFrame {
         // TODO add your handling code here:
         Cliente cliente = listaPreferencial.atenderCliente();
         if (cliente != null) {
+            cliente.setHoraAtencion();//Establecer la hora de atención
             mostrarClienteEnAtencion(cliente, "preferencial");
+            guardarReporteCliente(cliente); //guardar en reportes.txt
+            cargarClientesEnTabla(listaPreferencial);
+            actualizarFormularioPreferencial();
             JOptionPane.showMessageDialog(this, "Cliente preferencial atendido con éxito: " + cliente.getNombre());
-            actualizarFormularioPreferencial(); // Actualiza el formulario con el siguiente cliente
+            //actualizarFormularioPreferencial(); // Actualiza el formulario con el siguiente cliente
+            actualizarProdTxt(cliente);
         } else {
             JOptionPane.showMessageDialog(this, "No hay clientes en la fila preferencial.");
         }
@@ -468,48 +569,70 @@ public class AtenderCliente extends javax.swing.JFrame {
         if (nodo != null) {
             Cliente cliente = nodo.getCliente();
             mostrarClienteEnAtencion(cliente, tipoFilaSeleccionada);
+            //atenderClienteRapido();
         } else {
             JOptionPane.showMessageDialog(this, "No hay clientes en la fila rápida");
         }
     }//GEN-LAST:event_btnAtenderRapidoActionPerformed
 
+    private Cliente clienteEnAtencion;
+
     private void btnAtenderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAtenderActionPerformed
-        Cliente cliente = null;
+        if (clienteEnAtencion != null) {
+            Cliente cliente = clienteEnAtencion;
 
-        if (tipoFilaSeleccionada.equals("preferencial")) {
-            cliente = listaPreferencial.atenderCliente();
-            cargarClientesEnTabla(listaPreferencial);
-            actualizarFormularioPreferencial(); // Actualiza el formulario con el siguiente cliente
-        } else if (tipoFilaSeleccionada.equals("normal")) {
-            cliente = listaGeneral.atenderCliente();
-            cargarClientesEnTabla(listaGeneral);
-        } else if (tipoFilaSeleccionada.equals("rapido")) {
-            cliente = listaRapida.atenderCliente();
-            cargarClientesEnTabla(listaRapida);
-        }
+            if (tipoFilaSeleccionada.equals("preferencial")) {
+                /*cliente =*/ listaPreferencial.atenderCliente();
+                cargarClientesEnTabla(listaPreferencial);
+                //Si hay otro cliente preferencial, mostrarlo automáticamente
+            } else if (tipoFilaSeleccionada.equals("normal")) {//listaPreferencial.getCabeza() != null){
+                listaGeneral.atenderCliente();
+                cargarClientesEnTabla(listaGeneral);
+                //mostrarClienteEnAtencion(listaPreferencial.getCabeza().getCliente(),"preferencial");
+            } else if (tipoFilaSeleccionada.equals("rapido")) {
+                listaRapida.atenderCliente();
+                cargarClientesEnTabla(listaRapida);
+                //limpiarCampos();
+            }
 
-        if (cliente != null) {
+            //Giardar el reporte del cliente atendido
+            guardarReporteCliente(cliente);
             JOptionPane.showMessageDialog(this, "Cliente atendido con éxito: " + cliente.getNombre());
-            limpiarCampos();
+            actualizarProdTxt(cliente);
+            //actualizarFormularioPreferencial(); // Actualiza el formulario con el siguiente cliente
+            if (tipoFilaSeleccionada.equals("preferencial")) {
+                if (listaPreferencial.getCabeza() != null) {
+                    mostrarClienteEnAtencion(listaPreferencial.getCabeza().getCliente(), "preferencial");
+                } else {
+                    limpiarCampos();
+                }
+            } else if (tipoFilaSeleccionada.equals("normal")) {
+                if (listaGeneral.getCabeza() != null) {
+                    mostrarClienteEnAtencion(listaGeneral.getCabeza().getCliente(), "normal");
+                } else {
+                    limpiarCampos();
+                }
+            } else if (tipoFilaSeleccionada.equals("rapido")) {
+                //cliente = listaRapida.atenderCliente();
+                //cargarClientesEnTabla(listaRapida);
+                if (listaRapida.getCabeza() != null) {
+                    mostrarClienteEnAtencion(listaRapida.getCabeza().getCliente(), "rapido");
+                } else {
+                    limpiarCampos();
+                }
+            }
+
+            /*if (cliente != null) {
+            guardarReporteCliente(cliente);
+            JOptionPane.showMessageDialog(this, "Cliente atendido con éxito: " + cliente.getNombre());
+            //limpiarCampos();
 
             // Remove the client from the prod.txt file
-            try (BufferedReader reader = new BufferedReader(new FileReader("prod.txt")); BufferedWriter writer = new BufferedWriter(new FileWriter("prod.txt"))) {
-
-                String line;
-                boolean clienteRemoved = false;
-                while ((line = reader.readLine()) != null) {
-                    if (!clienteRemoved && line.contains(String.valueOf(cliente.getTiquete()))) {
-                        clienteRemoved = true;
-                    } else {
-                        writer.write(line);
-                        writer.newLine();
-                    }
-                }
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(this, "Error al actualizar el archivo prod.txt", "Error", JOptionPane.ERROR_MESSAGE);
-            }
+            actualizarProdTxt(cliente);*/
+            clienteEnAtencion = null;
         } else {
-            JOptionPane.showMessageDialog(this, "No hay clientes en la fila " + tipoFilaSeleccionada);
+            //JOptionPane.showMessageDialog(this, "No hay clientes en la fila " + tipoFilaSeleccionada);
+            JOptionPane.showMessageDialog(this, "No hay cliente seleccionado para atender.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnAtenderActionPerformed
 

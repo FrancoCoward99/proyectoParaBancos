@@ -36,12 +36,20 @@ public class Banco {
             System.out.println("Número de caja inválido");
         }
     }
+    
+    public ListaDobleClientes getCaja(int index) {
+        if (index >= 1 && index <= numCajas) {
+            return cajas[index - 1];
+        } else {
+            return null;
+        }
+    }
 
     // Método para imprimir el estado de todas las cajas (para depuración)
     public void imprimirEstadoCajas() {
         for (int i = 0; i < numCajas; i++) {
             System.out.println("Caja " + (i + 1) + ":");
-            cajas[i].imprimirLista();
+            cajas[i].imprimirLista();      
         }
     }
 }

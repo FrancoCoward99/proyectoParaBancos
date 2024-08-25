@@ -187,14 +187,16 @@ public class LoginUsuario extends javax.swing.JFrame {
         // Aquí puedes proceder a abrir la siguiente ventana del sistema
         // Ejemplo: new MainFrame().setVisible(true);
         // this.dispose(); // Para cerrar la ventana de login
+        new SolicitudConfiguracion().setVisible(true);
+        this.dispose();
 
     } else {
         // Credenciales incorrectas
         JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos", "Error", JOptionPane.ERROR_MESSAGE);
     }
     
-    new SolicitudConfiguracion().setVisible(true);
-this.dispose();
+    //new SolicitudConfiguracion().setVisible(true);
+    //this.dispose();
 
     }//GEN-LAST:event_btnEntrarLoginActionPerformed
 

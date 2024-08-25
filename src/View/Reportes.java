@@ -10,6 +10,7 @@ import Model.NodoCliente;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import javax.swing.JOptionPane;
 
 /**
@@ -36,86 +37,139 @@ public class Reportes extends javax.swing.JFrame {
         generarReportes();
     }
 
+    private void generarReportes() {
+        int totalClientesPreferencial = 0;
+        int totalClientesRapida = 0;
+        int totalClientesGeneral = 0;
 
+        long totalTiempoPreferencial = 0;
+        long totalTiempoRapida = 0;
+        long totalTiempoGeneral = 0;
 
-private void generarReportes() {
-    // Reporte 1: Caja que atendió la mayor cantidad de clientes
-    int totalPreferencial = listaPreferencial.getSize();
-    int totalRapida = listaRapida.getSize();
-    int totalGeneral = listaGeneral.getSize();
+        int totalClientesAtendidos = 0;
+        long totalTiempoAtencion = 0;
 
-    String cajaMayor = "Preferencial";
-    int maxClientes = totalPreferencial;
+        try (BufferedReader reader = new BufferedReader(new FileReader("reportes.txt"))) {
+            String linea;
+            while ((linea = reader.readLine()) != null) {
+                //Parsar la información del cliente
+                if (linea.startsWith("Cliente")) {
+                    String[] partes = linea.split(",");
+                    //tipo de cliente
+                    String tipo = partes[4].split("=")[1].trim().toLowerCase();
+                    //parseamos las horas
+                    String horaCreacionStr = partes[5].split("=")[1].trim();
+                    String horaAtencionStr = partes[6].split("=")[1].replace('}', ' ').trim();
 
-    if (totalRapida > maxClientes) {
-        cajaMayor = "Rápida";
-        maxClientes = totalRapida;
-    }
+                    LocalDateTime horaCreacion = LocalDateTime.parse(horaCreacionStr);
+                    LocalDateTime horaAtencion = LocalDateTime.parse(horaAtencionStr);
 
-    if (totalGeneral > maxClientes) {
-        cajaMayor = "General";
-        maxClientes = totalGeneral;
-    }
+                    long tiempoAtencion = java.time.Duration.between(horaCreacion, horaAtencion).getSeconds();
+                    totalClientesAtendidos++;
+                    totalTiempoAtencion += tiempoAtencion;
 
-    txtReporte1.setText(cajaMayor + " (" + maxClientes + " clientes)");
-
-    // Reporte 2: Total de clientes atendidos
-    int totalClientesAtendidos = totalPreferencial + totalRapida + totalGeneral;
-    txtReporte2.setText(String.valueOf(totalClientesAtendidos));
-
-    // Reporte 3: Caja con el mejor tiempo de atención promedio
-    double promedioPreferencial = calcularPromedioAtencion(listaPreferencial);
-    double promedioRapida = calcularPromedioAtencion(listaRapida);
-    double promedioGeneral = calcularPromedioAtencion(listaGeneral);
-
-    String cajaMejorTiempo = "Preferencial";
-    double mejorTiempo = promedioPreferencial;
-
-    if (promedioRapida < mejorTiempo) {
-        cajaMejorTiempo = "Rápida";
-        mejorTiempo = promedioRapida;
-    }
-
-    if (promedioGeneral < mejorTiempo) {
-        cajaMejorTiempo = "General";
-        mejorTiempo = promedioGeneral;
-    }
-
-    txtReporte3.setText(cajaMejorTiempo + " (" + mejorTiempo + " seg)");
-
-    // Reporte 4: Tiempo promedio de atención general
-    double tiempoPromedioGeneral = (promedioPreferencial + promedioRapida + promedioGeneral) / 3;
-    txtReporte4.setText(String.format("%.2f segundos", tiempoPromedioGeneral));
-}
-
-private double calcularPromedioAtencion(ListaDobleClientes lista) {
-    NodoCliente actual = lista.getCabeza();
-    long totalTiempo = 0;
-    int contador = 0;
-
-    while (actual != null) {
-        Cliente cliente = actual.getCliente();
-        if (cliente.getHoraAtencion() != null && cliente.getHoraCreacion() != null) {
-            long tiempoAtencion = cliente.getHoraAtencion().getSecond() - cliente.getHoraCreacion().getSecond();
-            totalTiempo += tiempoAtencion;
-            contador++;
+                    // Asignar según el tipo de cliente
+                    switch (tipo) {
+                        case "preferencial":
+                            totalClientesPreferencial++;
+                            totalTiempoPreferencial += tiempoAtencion;
+                            break;
+                        case "rápido":
+                        case "rapido":
+                            totalClientesRapida++;
+                            totalTiempoRapida += tiempoAtencion;
+                            break;
+                        case "normal":
+                            totalClientesGeneral++;
+                            totalTiempoGeneral += tiempoAtencion;
+                            break;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error al leer el archivo reportes.txt", "Error", JOptionPane.ERROR_MESSAGE);
         }
-        actual = actual.getSiguiente();
+
+        // Reporte 1: Caja que atendió la mayor cantidad de clientes
+       // int totalPreferencial = listaPreferencial.getSize();
+        //int totalRapida = listaRapida.getSize();
+        //int totalGeneral = listaGeneral.getSize();
+
+        //Determinar la caja que atendió mayor cantidad de clientes
+        String cajaMayor = "Preferencial";
+        int maxClientes = totalClientesPreferencial;//totalPreferencial;
+
+        if (totalClientesRapida > maxClientes) {//totalRapida > maxClientes) {
+            cajaMayor = "Rapido";
+            maxClientes = totalClientesRapida; //totalRapida;
+        }
+
+        if (totalClientesGeneral > maxClientes){//totalGeneral > maxClientes) {
+            cajaMayor = "General";
+            maxClientes = totalClientesGeneral;//totalGeneral;
+        }
+
+        txtReporte1.setText(cajaMayor + " (" + maxClientes + " clientes)");
+
+        // Reporte 2: Total de clientes atendidos
+       // int totalClientesAtendidos = totalPreferencial + totalRapida + totalGeneral;
+        //txtReporte2.setText(String.valueOf(totalClientesAtendidos));
+        txtReporte2.setText(String.valueOf(totalClientesAtendidos));
+
+        // Reporte 3: Caja con el mejor tiempo de atención promedio
+        //double promedioPreferencial = calcularPromedioAtencion(listaPreferencial);
+        //double promedioRapida = calcularPromedioAtencion(listaRapida);
+        //double promedioGeneral = calcularPromedioAtencion(listaGeneral);
+
+        //Caja con el mejor tiempo de atención promedio
+        String cajaMejorTiempo = "Preferencial";
+        double mejorTiempo = totalClientesPreferencial > 0 ? (double) totalTiempoPreferencial / totalClientesPreferencial : Double.MAX_VALUE;//promedioPreferencial;
+
+        if (totalClientesRapida > 0 && (double) totalTiempoRapida / totalClientesRapida < mejorTiempo) {//promedioRapida < mejorTiempo) {
+            cajaMejorTiempo = "Rapido";
+            mejorTiempo = (double) totalTiempoRapida / totalClientesRapida;//promedioRapida;
+        }
+
+        if (totalClientesGeneral > 0 && (double) totalTiempoGeneral / totalClientesGeneral < mejorTiempo){//promedioGeneral < mejorTiempo) {
+            cajaMejorTiempo = "General";
+            mejorTiempo = (double) totalTiempoGeneral / totalClientesGeneral;//promedioGeneral;
+        }
+
+        txtReporte3.setText(cajaMejorTiempo + " (" + String.format("%.2f", mejorTiempo) + " seg)");
+
+        // Reporte 4: Tiempo promedio de atención general
+        double tiempoPromedioGeneral = totalClientesAtendidos > 0 ? (double) totalTiempoAtencion / totalClientesAtendidos : 0; //(promedioPreferencial + promedioRapida + promedioGeneral) / 3;
+        txtReporte4.setText(String.format("%.2f segundos", tiempoPromedioGeneral));
     }
 
-    return contador > 0 ? (double) totalTiempo / contador : Double.MAX_VALUE;
-}
+    /*private double calcularPromedioAtencion(ListaDobleClientes lista) {
+        NodoCliente actual = lista.getCabeza();
+        long totalTiempo = 0;
+        int contador = 0;
 
-public String[] leerConfiguracion() {
-    String[] configuracion = new String[2];
-    try (BufferedReader reader = new BufferedReader(new FileReader("prod.txt"))) {
-        configuracion[0] = reader.readLine(); // Nombre del banco
-        configuracion[1] = reader.readLine(); // Cantidad de cajas
-    } catch (IOException e) {
-        JOptionPane.showMessageDialog(this, "Error al leer la configuración del archivo", "Error", JOptionPane.ERROR_MESSAGE);
+        while (actual != null) {
+            Cliente cliente = actual.getCliente();
+            if (cliente.getHoraAtencion() != null && cliente.getHoraCreacion() != null) {
+                long tiempoAtencion = cliente.getHoraAtencion().getSecond() - cliente.getHoraCreacion().getSecond();
+                totalTiempo += tiempoAtencion;
+                contador++;
+            }
+            actual = actual.getSiguiente();
+        }
+
+        return contador > 0 ? (double) totalTiempo / contador : Double.MAX_VALUE;
+    }*/
+
+    public String[] leerConfiguracion() {
+        String[] configuracion = new String[2];
+        try (BufferedReader reader = new BufferedReader(new FileReader("prod.txt"))) {
+            configuracion[0] = reader.readLine(); // Nombre del banco
+            configuracion[1] = reader.readLine(); // Cantidad de cajas
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error al leer la configuración del archivo", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return configuracion;
     }
-    return configuracion;
-}
 
     /**
      * This method is called from within the constructor to initialize the form.
