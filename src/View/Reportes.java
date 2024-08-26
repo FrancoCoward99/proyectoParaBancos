@@ -8,7 +8,9 @@ import Model.Cliente;
 import Model.ListaDobleClientes;
 import Model.NodoCliente;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import javax.swing.JOptionPane;
@@ -34,8 +36,43 @@ public class Reportes extends javax.swing.JFrame {
         this.listaPreferencial = listaPreferencial;
         this.listaRapida = listaRapida;
         this.listaGeneral = listaGeneral;
+   //     verificarYLimpiarHistoricoSiCambiaBanco(configuracion[0]);;        
         generarReportes();
     }
+    
+   /*  // Método para verificar si el banco ha cambiado y limpiar el archivo si es necesario
+    private void verificarYLimpiarHistoricoSiCambiaBanco(String bancoActual) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("configBanco.txt"))) {
+            String bancoAnterior = reader.readLine();
+            if (!bancoActual.equals(bancoAnterior)) {
+                // Si el banco ha cambiado, limpiar reportes.txt y actualizar configBanco.txt
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter("reportes.txt"))) {
+                    // Limpiar reportes.txt
+                }
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter("configBanco.txt"))) {
+                    writer.write(bancoActual);
+                }
+            }
+        } catch (IOException e) {
+            // Si hay un error leyendo el archivo de configuración, crear uno nuevo
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter("configBanco.txt"))) {
+                writer.write(bancoActual);
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "Error al crear archivo de configuración.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    // Método para calcular el tiempo de atención en segundos
+    private double calcularTiempoAtencion(LocalDateTime horaCreacion, LocalDateTime horaAtencion) {
+        if (horaCreacion != null && horaAtencion != null) {
+            // Calcula la diferencia entre la hora de atención y la hora de creación
+            return java.time.Duration.between(horaCreacion, horaAtencion).getSeconds();
+        } else {
+            // En caso de que las horas sean nulas, devuelve un valor por defecto
+            return 0;
+        }
+    }*/
 
     private void generarReportes() {
         int totalClientesPreferencial = 0;
@@ -51,12 +88,12 @@ public class Reportes extends javax.swing.JFrame {
 
         try (BufferedReader reader = new BufferedReader(new FileReader("reportes.txt"))) {
             String linea;
-            while ((linea = reader.readLine()) != null) {
-                //Parsar la información del cliente
+            while ((linea = reader.readLine()) != null) {               
+                //Parsear la información del cliente
                 if (linea.startsWith("Cliente")) {
                     String[] partes = linea.split(",");
                     //tipo de cliente
-                    String tipo = partes[4].split("=")[1].trim().toLowerCase();
+                    String tipo = partes[4].split("=")[1].trim();                    
                     //parseamos las horas
                     String horaCreacionStr = partes[5].split("=")[1].trim();
                     String horaAtencionStr = partes[6].split("=")[1].replace('}', ' ').trim();
@@ -64,22 +101,23 @@ public class Reportes extends javax.swing.JFrame {
                     LocalDateTime horaCreacion = LocalDateTime.parse(horaCreacionStr);
                     LocalDateTime horaAtencion = LocalDateTime.parse(horaAtencionStr);
 
+                    // Utilizamos el nuevo método para calcular el tiempo de atención
                     long tiempoAtencion = java.time.Duration.between(horaCreacion, horaAtencion).getSeconds();
+                   // long tiempoAtencion = (long) calcularTiempoAtencion(horaCreacion, horaAtencion);
                     totalClientesAtendidos++;
                     totalTiempoAtencion += tiempoAtencion;
 
                     // Asignar según el tipo de cliente
                     switch (tipo) {
-                        case "preferencial":
+                        case "Preferencial":
                             totalClientesPreferencial++;
                             totalTiempoPreferencial += tiempoAtencion;
                             break;
-                        case "rápido":
-                        case "rapido":
+                        case "Rapida":
                             totalClientesRapida++;
                             totalTiempoRapida += tiempoAtencion;
                             break;
-                        case "normal":
+                        case "Normal":
                             totalClientesGeneral++;
                             totalTiempoGeneral += tiempoAtencion;
                             break;
@@ -91,28 +129,29 @@ public class Reportes extends javax.swing.JFrame {
         }
 
         // Reporte 1: Caja que atendió la mayor cantidad de clientes
-       // int totalPreferencial = listaPreferencial.getSize();
+        // int totalPreferencial = listaPreferencial.getSize();
         //int totalRapida = listaRapida.getSize();
         //int totalGeneral = listaGeneral.getSize();
-
         //Determinar la caja que atendió mayor cantidad de clientes
         String cajaMayor = "Preferencial";
         int maxClientes = totalClientesPreferencial;//totalPreferencial;
 
         if (totalClientesRapida > maxClientes) {//totalRapida > maxClientes) {
-            cajaMayor = "Rapido";
+            cajaMayor = "Rapida";
             maxClientes = totalClientesRapida; //totalRapida;
         }
 
-        if (totalClientesGeneral > maxClientes){//totalGeneral > maxClientes) {
+        if (totalClientesGeneral > maxClientes) {//totalGeneral > maxClientes) {
             cajaMayor = "General";
             maxClientes = totalClientesGeneral;//totalGeneral;
         }
 
+        // Mostrar el resultado en el reporte
+        System.out.println("Caja mayor al final: " + cajaMayor + " con " + maxClientes + " clientes.");
         txtReporte1.setText(cajaMayor + " (" + maxClientes + " clientes)");
 
         // Reporte 2: Total de clientes atendidos
-       // int totalClientesAtendidos = totalPreferencial + totalRapida + totalGeneral;
+        // int totalClientesAtendidos = totalPreferencial + totalRapida + totalGeneral;
         //txtReporte2.setText(String.valueOf(totalClientesAtendidos));
         txtReporte2.setText(String.valueOf(totalClientesAtendidos));
 
@@ -120,24 +159,51 @@ public class Reportes extends javax.swing.JFrame {
         //double promedioPreferencial = calcularPromedioAtencion(listaPreferencial);
         //double promedioRapida = calcularPromedioAtencion(listaRapida);
         //double promedioGeneral = calcularPromedioAtencion(listaGeneral);
-
         //Caja con el mejor tiempo de atención promedio
-        String cajaMejorTiempo = "Preferencial";
-        double mejorTiempo = totalClientesPreferencial > 0 ? (double) totalTiempoPreferencial / totalClientesPreferencial : Double.MAX_VALUE;//promedioPreferencial;
+        //String cajaMejorTiempo = "Preferencial";
+        String cajaMejorTiempo = null;
+        double mejorTiempo = Double.MAX_VALUE;
+        //double mejorTiempo = totalClientesPreferencial > 0 ? (double) totalTiempoPreferencial / totalClientesPreferencial : Double.MAX_VALUE;//promedioPreferencial;
 
-        if (totalClientesRapida > 0 && (double) totalTiempoRapida / totalClientesRapida < mejorTiempo) {//promedioRapida < mejorTiempo) {
-            cajaMejorTiempo = "Rapido";
+        if (totalClientesPreferencial > 0) {
+            double tiempoPromedioPreferencial = (double) totalTiempoPreferencial / totalClientesPreferencial;
+            mejorTiempo = tiempoPromedioPreferencial;
+            cajaMejorTiempo = "Preferencial";
+        }
+
+        if (totalClientesRapida > 0) {
+            double tiempoPromedioRapida = (double) totalTiempoRapida / totalClientesRapida;
+            if (tiempoPromedioRapida < mejorTiempo || cajaMejorTiempo == null) {
+                mejorTiempo = tiempoPromedioRapida;
+                cajaMejorTiempo = "Rapida";
+            }
+        }
+
+        if (totalClientesGeneral > 0) {
+            double tiempoPromedioGeneral = (double) totalTiempoGeneral / totalClientesGeneral;
+            if (tiempoPromedioGeneral < mejorTiempo || cajaMejorTiempo == null) {
+                mejorTiempo = tiempoPromedioGeneral;
+                cajaMejorTiempo = "General";
+            }
+        }
+        /* if (totalClientesRapida > 0 && (double) totalTiempoRapida / totalClientesRapida < mejorTiempo) {//promedioRapida < mejorTiempo) {
+            cajaMejorTiempo = "Rapida";
             mejorTiempo = (double) totalTiempoRapida / totalClientesRapida;//promedioRapida;
         }
 
-        if (totalClientesGeneral > 0 && (double) totalTiempoGeneral / totalClientesGeneral < mejorTiempo){//promedioGeneral < mejorTiempo) {
+        if (totalClientesGeneral > 0 && (double) totalTiempoGeneral / totalClientesGeneral < mejorTiempo) {//promedioGeneral < mejorTiempo) {
             cajaMejorTiempo = "General";
             mejorTiempo = (double) totalTiempoGeneral / totalClientesGeneral;//promedioGeneral;
+        }*/
+        // Si no se ha asignado ninguna caja (lo que significa que no hubo clientes atendidos), manejar el caso
+        if (cajaMejorTiempo == null) {
+            txtReporte3.setText("No hay datos suficientes para determinar la caja con el mejor tiempo de atención");
+        } else {
+            txtReporte3.setText(cajaMejorTiempo + " (" + String.format("%.2f", mejorTiempo) + " seg)");
         }
 
-        txtReporte3.setText(cajaMejorTiempo + " (" + String.format("%.2f", mejorTiempo) + " seg)");
-
-        // Reporte 4: Tiempo promedio de atención general
+        /*txtReporte3.setText(cajaMejorTiempo + " (" + String.format("%.2f", mejorTiempo) + " seg)");*/
+        // Reporte 4: Tiempo promedio de atención General
         double tiempoPromedioGeneral = totalClientesAtendidos > 0 ? (double) totalTiempoAtencion / totalClientesAtendidos : 0; //(promedioPreferencial + promedioRapida + promedioGeneral) / 3;
         txtReporte4.setText(String.format("%.2f segundos", tiempoPromedioGeneral));
     }
@@ -158,7 +224,7 @@ public class Reportes extends javax.swing.JFrame {
         }
 
         return contador > 0 ? (double) totalTiempo / contador : Double.MAX_VALUE;
-    }*/
+    }*/   
 
     public String[] leerConfiguracion() {
         String[] configuracion = new String[2];
@@ -186,7 +252,7 @@ public class Reportes extends javax.swing.JFrame {
         lblNombreDeBanco = new javax.swing.JLabel();
         btnIngresarCliente = new javax.swing.JButton();
         btnAtenderCliente = new javax.swing.JButton();
-        btnRoportes = new javax.swing.JButton();
+        btnReportes = new javax.swing.JButton();
         btnConfiguracionSistema = new javax.swing.JButton();
         lblNombreDeBanco1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -232,10 +298,10 @@ public class Reportes extends javax.swing.JFrame {
             }
         });
 
-        btnRoportes.setBackground(new java.awt.Color(46, 156, 94));
-        btnRoportes.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnRoportes.setForeground(new java.awt.Color(255, 255, 255));
-        btnRoportes.setText("Reportes");
+        btnReportes.setBackground(new java.awt.Color(46, 156, 94));
+        btnReportes.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnReportes.setForeground(new java.awt.Color(255, 255, 255));
+        btnReportes.setText("Reportes");
 
         btnConfiguracionSistema.setBackground(new java.awt.Color(46, 156, 94));
         btnConfiguracionSistema.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -263,7 +329,7 @@ public class Reportes extends javax.swing.JFrame {
                         .addContainerGap()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(btnConfiguracionSistema, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnRoportes, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnReportes, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btnAtenderCliente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btnIngresarCliente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
@@ -295,7 +361,7 @@ public class Reportes extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnAtenderCliente)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnRoportes)
+                .addComponent(btnReportes)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnConfiguracionSistema)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 69, Short.MAX_VALUE)
@@ -432,10 +498,10 @@ public class Reportes extends javax.swing.JFrame {
     }//GEN-LAST:event_btnIngresarClienteActionPerformed
 
     private void btnAtenderClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAtenderClienteActionPerformed
-        // TODO add your handling code here:
-        ListaDobleClientes listaPreferencial = new ListaDobleClientes();
-        ListaDobleClientes listaRapida = new ListaDobleClientes();
-        ListaDobleClientes listaGeneral = new ListaDobleClientes();
+        // TODO add your handling code here:       
+ //       ListaDobleClientes listaPreferencial = new ListaDobleClientes();
+   //     ListaDobleClientes listaRapida = new ListaDobleClientes();
+     //   ListaDobleClientes listaGeneral = new ListaDobleClientes();
 
         new AtenderCliente(listaPreferencial, listaRapida, listaGeneral).setVisible(true);
 
@@ -491,7 +557,7 @@ public class Reportes extends javax.swing.JFrame {
     private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnConfiguracionSistema;
     private javax.swing.JButton btnIngresarCliente;
-    private javax.swing.JButton btnRoportes;
+    private javax.swing.JButton btnReportes;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;

@@ -30,7 +30,7 @@ public class AtenderCliente extends javax.swing.JFrame {
 
         initComponents();
         this.setLocationRelativeTo(null);
-        limpiarReportesTxt(); //Limpiar reportes.txt al iniciar
+        //limpiarReportesTxt(); //Limpiar reportes.txt al iniciar
         this.listaPreferencial = listaPreferencial;
         this.listaRapida = listaRapida;
         this.listaGeneral = listaGeneral;
@@ -44,24 +44,23 @@ public class AtenderCliente extends javax.swing.JFrame {
         cargarClientesEnTabla(listaGeneral);
 
         if (listaPreferencial.getCabeza() != null) {
-            mostrarClienteEnAtencion(listaPreferencial.getCabeza().getCliente(), "preferencial");
-            tipoFilaSeleccionada = "preferencial";
+            mostrarClienteEnAtencion(listaPreferencial.getCabeza().getCliente(), "Preferencial");
+            tipoFilaSeleccionada = "Preferencial";
         }
     }
 
-    private void limpiarReportesTxt() {
+    /*private void limpiarReportesTxt() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("reportes.txt"))) {
             //Simplemente abrimos el archivo en modo de escritura para vaciar su contenido
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Error al limpiar el archivo reportes.txt", "Error", JOptionPane.ERROR_MESSAGE);
         }
-    }
-
+    }*/
     private void actualizarFormularioPreferencial() {
         NodoCliente nodoPreferencial = listaPreferencial.getCabeza();
         if (nodoPreferencial != null) {
             mostrarClienteEnAtencion(nodoPreferencial.getCliente(), "preferencial");
-            tipoFilaSeleccionada = "preferencial";
+            tipoFilaSeleccionada = "Preferencial";
         } else {
             limpiarCampos();
         }
@@ -115,7 +114,7 @@ public class AtenderCliente extends javax.swing.JFrame {
         Cliente cliente = listaPreferencial.atenderCliente();
         if (cliente != null) {
             cliente.setHoraAtencion();
-            mostrarClienteEnAtencion(cliente, "preferencial");
+            mostrarClienteEnAtencion(cliente, "Preferencial");
             guardarReporteCliente(cliente);
             cargarClientesEnTabla(listaPreferencial);
             actualizarProdTxt(cliente);
@@ -125,11 +124,11 @@ public class AtenderCliente extends javax.swing.JFrame {
         }
     }
 
-    /* private void atenderClienteRapido() {
+    /* private void atenderClienteRapida() {
         Cliente cliente = listaRapida.atenderCliente();
         if (cliente != null) {
             cliente.setHoraAtencion();
-            mostrarClienteEnAtencion(cliente, "rapido");
+            mostrarClienteEnAtencion(cliente, "Rapido");
             guardarReporteCliente(cliente);
             cargarClientesEnTabla(listaRapida);
             actualizarProdTxt(cliente);
@@ -215,23 +214,22 @@ public class AtenderCliente extends javax.swing.JFrame {
                     Cliente cliente = new Cliente(nombre, id, edad, tramite, tipo, tiquete);
 
                     //Evitar duplicados: agregar solo si no existe en ninguna lista
-                    if (!existeClienteEnLista(cliente, listaPreferencial)
+                   /* if (!existeClienteEnLista(cliente, listaPreferencial)
                             && !existeClienteEnLista(cliente, listaRapida)
-                            && !existeClienteEnLista(cliente, listaGeneral)) {
+                            && !existeClienteEnLista(cliente, listaGeneral)) {*/
 
                         if (tipo.equals("Preferencial")) {
                             listaPreferencial.agregarCliente(cliente);
-                        } else if (tipo.equals("Rapido")) {
+                        } else if (tipo.equals("Rapida")) {
                             listaRapida.agregarCliente(cliente);
                         } else if (tipo.equals("Normal")) {
                             listaGeneral.agregarCliente(cliente);
                         }
                     }
-                }
-            }
-            // cargarClientesEnTabla(listaPreferencial);
-            //cargarClientesEnTabla(listaRapida);
-            //cargarClientesEnTabla(listaGeneral);
+                }            
+           // cargarClientesEnTabla(listaPreferencial);
+           // cargarClientesEnTabla(listaRapida);
+           // cargarClientesEnTabla(listaGeneral);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Error al cargar los clientes desde el archivo", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -243,7 +241,10 @@ public class AtenderCliente extends javax.swing.JFrame {
     @Override
     public void setVisible(boolean visible) {
         if (visible) {
-            cargarClientesDesdeArchivo(); // Cargar clientes desde prod.txt cada vez que la ventana sea visible
+            //cargarClientesDesdeArchivo(); // Cargar clientes desde prod.txt cada vez que la ventana sea visible
+            cargarClientesEnTabla(listaPreferencial);
+            cargarClientesEnTabla(listaRapida);
+            cargarClientesEnTabla(listaGeneral);
         }
         super.setVisible(visible);
     }
@@ -263,7 +264,7 @@ public class AtenderCliente extends javax.swing.JFrame {
         lblNombreDeBanco = new javax.swing.JLabel();
         btnIngresarCliente = new javax.swing.JButton();
         btnAtenderCliente = new javax.swing.JButton();
-        btnRoportes = new javax.swing.JButton();
+        btnReportes = new javax.swing.JButton();
         btnConfiguracionSistema = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         lblTitulo = new javax.swing.JLabel();
@@ -273,7 +274,7 @@ public class AtenderCliente extends javax.swing.JFrame {
         btnAtenderPreferencial = new javax.swing.JButton();
         lblSubTitulo1 = new javax.swing.JLabel();
         btnAtenderNormal = new javax.swing.JButton();
-        btnAtenderRapido = new javax.swing.JButton();
+        btnAtenderRapida = new javax.swing.JButton();
         btnAtender = new javax.swing.JButton();
         txtCedulaCliente = new javax.swing.JTextField();
         txtNombreCliente = new javax.swing.JTextField();
@@ -306,13 +307,13 @@ public class AtenderCliente extends javax.swing.JFrame {
         btnAtenderCliente.setForeground(new java.awt.Color(255, 255, 255));
         btnAtenderCliente.setText("Atender Cliente");
 
-        btnRoportes.setBackground(new java.awt.Color(46, 156, 94));
-        btnRoportes.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnRoportes.setForeground(new java.awt.Color(255, 255, 255));
-        btnRoportes.setText("Reportes");
-        btnRoportes.addActionListener(new java.awt.event.ActionListener() {
+        btnReportes.setBackground(new java.awt.Color(46, 156, 94));
+        btnReportes.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnReportes.setForeground(new java.awt.Color(255, 255, 255));
+        btnReportes.setText("Reportes");
+        btnReportes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRoportesActionPerformed(evt);
+                btnReportesActionPerformed(evt);
             }
         });
 
@@ -347,7 +348,7 @@ public class AtenderCliente extends javax.swing.JFrame {
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(btnConfiguracionSistema, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnRoportes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnReportes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btnAtenderCliente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btnIngresarCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 288, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap())
@@ -362,7 +363,7 @@ public class AtenderCliente extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnAtenderCliente)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnRoportes)
+                .addComponent(btnReportes)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnConfiguracionSistema)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -413,10 +414,10 @@ public class AtenderCliente extends javax.swing.JFrame {
             }
         });
 
-        btnAtenderRapido.setText("Rapido");
-        btnAtenderRapido.addActionListener(new java.awt.event.ActionListener() {
+        btnAtenderRapida.setText("Rapida");
+        btnAtenderRapida.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAtenderRapidoActionPerformed(evt);
+                btnAtenderRapidaActionPerformed(evt);
             }
         });
 
@@ -468,7 +469,7 @@ public class AtenderCliente extends javax.swing.JFrame {
                                         .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 241, Short.MAX_VALUE)
                                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                        .addComponent(btnAtenderRapido)
+                                        .addComponent(btnAtenderRapida)
                                         .addComponent(btnAtenderPreferencial)
                                         .addComponent(btnAtenderNormal))
                                     .addGap(156, 156, 156))
@@ -506,7 +507,7 @@ public class AtenderCliente extends javax.swing.JFrame {
                 .addGap(20, 20, 20)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtTramiteCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnAtenderRapido))
+                    .addComponent(btnAtenderRapida))
                 .addGap(18, 18, 18)
                 .addComponent(txtTiqueteCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(33, 33, 33)
@@ -539,7 +540,7 @@ public class AtenderCliente extends javax.swing.JFrame {
         Cliente cliente = listaPreferencial.atenderCliente();
         if (cliente != null) {
             cliente.setHoraAtencion();//Establecer la hora de atención
-            mostrarClienteEnAtencion(cliente, "preferencial");
+            mostrarClienteEnAtencion(cliente, "Preferencial");
             guardarReporteCliente(cliente); //guardar en reportes.txt
             cargarClientesEnTabla(listaPreferencial);
             actualizarFormularioPreferencial();
@@ -553,7 +554,7 @@ public class AtenderCliente extends javax.swing.JFrame {
 
     private void btnAtenderNormalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAtenderNormalActionPerformed
         // TODO add your handling code here:
-        tipoFilaSeleccionada = "normal";
+        tipoFilaSeleccionada = "Normal";
         NodoCliente nodo = listaGeneral.getCabeza();
         if (nodo != null) {
             Cliente cliente = nodo.getCliente();
@@ -563,17 +564,17 @@ public class AtenderCliente extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnAtenderNormalActionPerformed
 
-    private void btnAtenderRapidoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAtenderRapidoActionPerformed
-        tipoFilaSeleccionada = "rapido";
+    private void btnAtenderRapidaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAtenderRapidaActionPerformed
+        tipoFilaSeleccionada = "Rapida";
         NodoCliente nodo = listaRapida.getCabeza();
         if (nodo != null) {
             Cliente cliente = nodo.getCliente();
             mostrarClienteEnAtencion(cliente, tipoFilaSeleccionada);
-            //atenderClienteRapido();
+            //atenderClienteRapida();
         } else {
             JOptionPane.showMessageDialog(this, "No hay clientes en la fila rápida");
         }
-    }//GEN-LAST:event_btnAtenderRapidoActionPerformed
+    }//GEN-LAST:event_btnAtenderRapidaActionPerformed
 
     private Cliente clienteEnAtencion;
 
@@ -581,15 +582,15 @@ public class AtenderCliente extends javax.swing.JFrame {
         if (clienteEnAtencion != null) {
             Cliente cliente = clienteEnAtencion;
 
-            if (tipoFilaSeleccionada.equals("preferencial")) {
+            if (tipoFilaSeleccionada.equals("Preferencial")) {
                 /*cliente =*/ listaPreferencial.atenderCliente();
                 cargarClientesEnTabla(listaPreferencial);
                 //Si hay otro cliente preferencial, mostrarlo automáticamente
-            } else if (tipoFilaSeleccionada.equals("normal")) {//listaPreferencial.getCabeza() != null){
+            } else if (tipoFilaSeleccionada.equals("Normal")) {//listaPreferencial.getCabeza() != null){
                 listaGeneral.atenderCliente();
                 cargarClientesEnTabla(listaGeneral);
                 //mostrarClienteEnAtencion(listaPreferencial.getCabeza().getCliente(),"preferencial");
-            } else if (tipoFilaSeleccionada.equals("rapido")) {
+            } else if (tipoFilaSeleccionada.equals("Rapida")) {
                 listaRapida.atenderCliente();
                 cargarClientesEnTabla(listaRapida);
                 //limpiarCampos();
@@ -600,23 +601,23 @@ public class AtenderCliente extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Cliente atendido con éxito: " + cliente.getNombre());
             actualizarProdTxt(cliente);
             //actualizarFormularioPreferencial(); // Actualiza el formulario con el siguiente cliente
-            if (tipoFilaSeleccionada.equals("preferencial")) {
+            if (tipoFilaSeleccionada.equals("Preferencial")) {
                 if (listaPreferencial.getCabeza() != null) {
-                    mostrarClienteEnAtencion(listaPreferencial.getCabeza().getCliente(), "preferencial");
+                    mostrarClienteEnAtencion(listaPreferencial.getCabeza().getCliente(), "Preferencial");
                 } else {
                     limpiarCampos();
                 }
-            } else if (tipoFilaSeleccionada.equals("normal")) {
+            } else if (tipoFilaSeleccionada.equals("Normal")) {
                 if (listaGeneral.getCabeza() != null) {
-                    mostrarClienteEnAtencion(listaGeneral.getCabeza().getCliente(), "normal");
+                    mostrarClienteEnAtencion(listaGeneral.getCabeza().getCliente(), "Normal");
                 } else {
                     limpiarCampos();
                 }
-            } else if (tipoFilaSeleccionada.equals("rapido")) {
+            } else if (tipoFilaSeleccionada.equals("Rapida")) {
                 //cliente = listaRapida.atenderCliente();
                 //cargarClientesEnTabla(listaRapida);
                 if (listaRapida.getCabeza() != null) {
-                    mostrarClienteEnAtencion(listaRapida.getCabeza().getCliente(), "rapido");
+                    mostrarClienteEnAtencion(listaRapida.getCabeza().getCliente(), "Rapido");
                 } else {
                     limpiarCampos();
                 }
@@ -649,11 +650,11 @@ public class AtenderCliente extends javax.swing.JFrame {
 
     }//GEN-LAST:event_btnConfiguracionSistemaActionPerformed
 
-    private void btnRoportesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRoportesActionPerformed
+    private void btnReportesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportesActionPerformed
         // TODO add your handling code here:
         new Reportes(listaPreferencial, listaRapida, listaGeneral).setVisible(true);
         this.dispose();
-    }//GEN-LAST:event_btnRoportesActionPerformed
+    }//GEN-LAST:event_btnReportesActionPerformed
 
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
         // TODO add your handling code here:
@@ -704,11 +705,11 @@ public class AtenderCliente extends javax.swing.JFrame {
     private javax.swing.JButton btnAtenderCliente;
     private javax.swing.JButton btnAtenderNormal;
     private javax.swing.JButton btnAtenderPreferencial;
-    private javax.swing.JButton btnAtenderRapido;
+    private javax.swing.JButton btnAtenderRapida;
     private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnConfiguracionSistema;
     private javax.swing.JButton btnIngresarCliente;
-    private javax.swing.JButton btnRoportes;
+    private javax.swing.JButton btnReportes;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;

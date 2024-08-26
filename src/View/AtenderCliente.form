@@ -74,7 +74,7 @@
                                       </Group>
                                       <EmptySpace pref="241" max="32767" attributes="0"/>
                                       <Group type="103" groupAlignment="1" attributes="0">
-                                          <Component id="btnAtenderRapido" alignment="1" min="-2" max="-2" attributes="0"/>
+                                          <Component id="btnAtenderRapida" alignment="1" min="-2" max="-2" attributes="0"/>
                                           <Component id="btnAtenderPreferencial" alignment="1" min="-2" max="-2" attributes="0"/>
                                           <Component id="btnAtenderNormal" alignment="1" min="-2" max="-2" attributes="0"/>
                                       </Group>
@@ -126,7 +126,7 @@
                   <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="txtTramiteCliente" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="btnAtenderRapido" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="btnAtenderRapida" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Component id="txtTiqueteCliente" min="-2" max="-2" attributes="0"/>
@@ -171,7 +171,7 @@
                               <EmptySpace max="32767" attributes="0"/>
                               <Group type="103" groupAlignment="0" max="-2" attributes="0">
                                   <Component id="btnConfiguracionSistema" max="32767" attributes="0"/>
-                                  <Component id="btnRoportes" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="btnReportes" alignment="0" max="32767" attributes="0"/>
                                   <Component id="btnAtenderCliente" alignment="0" max="32767" attributes="0"/>
                                   <Component id="btnIngresarCliente" alignment="0" min="-2" pref="288" max="-2" attributes="0"/>
                               </Group>
@@ -191,7 +191,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="btnAtenderCliente" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="btnRoportes" min="-2" max="-2" attributes="0"/>
+                      <Component id="btnReportes" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="btnConfiguracionSistema" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
@@ -240,7 +240,7 @@
                 <Property name="text" type="java.lang.String" value="Atender Cliente"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JButton" name="btnRoportes">
+            <Component class="javax.swing.JButton" name="btnReportes">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="5e" green="9c" red="2e" type="rgb"/>
@@ -254,7 +254,7 @@
                 <Property name="text" type="java.lang.String" value="Reportes"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnRoportesActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnReportesActionPerformed"/>
               </Events>
             </Component>
             <Component class="javax.swing.JButton" name="btnConfiguracionSistema">
@@ -374,12 +374,12 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnAtenderNormalActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="btnAtenderRapido">
+        <Component class="javax.swing.JButton" name="btnAtenderRapida">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Rapido"/>
+            <Property name="text" type="java.lang.String" value="Rapida"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnAtenderRapidoActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnAtenderRapidaActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JButton" name="btnAtender">

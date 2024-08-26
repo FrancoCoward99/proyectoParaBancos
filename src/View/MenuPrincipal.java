@@ -94,7 +94,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
         lblNombreDeBanco = new javax.swing.JLabel();
         btnIngresarCliente = new javax.swing.JButton();
         btnAtenderCliente = new javax.swing.JButton();
-        btnRoportes = new javax.swing.JButton();
+        btnReportes = new javax.swing.JButton();
         btnConfiguracionSistema = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         lblTipoCambio = new javax.swing.JLabel();
@@ -106,7 +106,6 @@ public class MenuPrincipal extends javax.swing.JFrame {
         jPanel2.setBackground(new java.awt.Color(46, 156, 94));
 
         lblNombreDeBanco.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        lblNombreDeBanco.setForeground(new java.awt.Color(0, 0, 0));
 
         btnIngresarCliente.setBackground(new java.awt.Color(46, 156, 94));
         btnIngresarCliente.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -128,13 +127,13 @@ public class MenuPrincipal extends javax.swing.JFrame {
             }
         });
 
-        btnRoportes.setBackground(new java.awt.Color(46, 156, 94));
-        btnRoportes.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnRoportes.setForeground(new java.awt.Color(255, 255, 255));
-        btnRoportes.setText("Reportes");
-        btnRoportes.addActionListener(new java.awt.event.ActionListener() {
+        btnReportes.setBackground(new java.awt.Color(46, 156, 94));
+        btnReportes.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnReportes.setForeground(new java.awt.Color(255, 255, 255));
+        btnReportes.setText("Reportes");
+        btnReportes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRoportesActionPerformed(evt);
+                btnReportesActionPerformed(evt);
             }
         });
 
@@ -151,7 +150,6 @@ public class MenuPrincipal extends javax.swing.JFrame {
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/Logo Cajas para bancos.png"))); // NOI18N
 
         lblTipoCambio.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        lblTipoCambio.setForeground(new java.awt.Color(0, 0, 0));
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -162,7 +160,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnIngresarCliente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnAtenderCliente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnRoportes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnReportes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnConfiguracionSistema, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
@@ -189,7 +187,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnAtenderCliente)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnRoportes)
+                .addComponent(btnReportes)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnConfiguracionSistema)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 68, Short.MAX_VALUE)
@@ -253,11 +251,11 @@ public class MenuPrincipal extends javax.swing.JFrame {
 
     }//GEN-LAST:event_btnConfiguracionSistemaActionPerformed
 
-    private void btnRoportesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRoportesActionPerformed
+    private void btnReportesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportesActionPerformed
         // TODO add your handling code here:
         new Reportes(listaPreferencial, listaRapida, listaGeneral).setVisible(true);
         this.dispose();
-    }//GEN-LAST:event_btnRoportesActionPerformed
+    }//GEN-LAST:event_btnReportesActionPerformed
 
     /**
      * @param args the command line arguments
@@ -298,7 +296,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton btnAtenderCliente;
     private javax.swing.JButton btnConfiguracionSistema;
     private javax.swing.JButton btnIngresarCliente;
-    private javax.swing.JButton btnRoportes;
+    private javax.swing.JButton btnReportes;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;

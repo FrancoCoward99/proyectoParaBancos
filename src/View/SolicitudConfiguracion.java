@@ -5,7 +5,10 @@
 package View;
 
 import Model.Banco;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import javax.swing.JOptionPane;
@@ -14,7 +17,6 @@ import javax.swing.JOptionPane;
  *
  * @author Franco Coward
  */
-
 public class SolicitudConfiguracion extends javax.swing.JFrame {
 
     /**
@@ -22,7 +24,7 @@ public class SolicitudConfiguracion extends javax.swing.JFrame {
      */
     public SolicitudConfiguracion() {
         initComponents();
-         this.setLocationRelativeTo(null);
+        this.setLocationRelativeTo(null);
     }
 
     /**
@@ -204,20 +206,28 @@ public class SolicitudConfiguracion extends javax.swing.JFrame {
     private void btnEntrar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEntrar1ActionPerformed
         // TODO add your handling code here:
         String nombreBanco = txtNombreBanco.getText().trim();
-        String cantidadCajas = txtCantidadCajas.getText().trim();
+        String cantidadCajasStr = txtCantidadCajas.getText().trim();
 
-        if (nombreBanco.isEmpty() || cantidadCajas.isEmpty()) {
+        if (nombreBanco.isEmpty() || cantidadCajasStr.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Por favor, complete todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
         } else {
-            // Actualizamos el archivo de configuración
-            actualizarArchivoConfiguracion(nombreBanco, cantidadCajas);
+            try {
+                int cantidadCajas = Integer.parseInt(cantidadCajasStr);
+                if (cantidadCajas <= 2) {
+                    JOptionPane.showMessageDialog(this, "La cantidad de cajas debe ser mayor o igual a 3.", "Error", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    // Actualizamos el archivo de configuración
+                    actualizarArchivoConfiguracion(nombreBanco, String.valueOf(cantidadCajas));
 
-            // Abrimos el menú principal
-            MenuPrincipal menuPrincipal = new MenuPrincipal();
-            menuPrincipal.setVisible(true);
-            this.dispose();
+                    // Abrimos el menú principal
+                    MenuPrincipal menuPrincipal = new MenuPrincipal();
+                    menuPrincipal.setVisible(true);
+                    this.dispose();
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Por favor, ingrese un número válido para la cantidad de cajas.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
-    
 
 
     }//GEN-LAST:event_btnEntrar1ActionPerformed
@@ -231,60 +241,85 @@ public class SolicitudConfiguracion extends javax.swing.JFrame {
 
     }//GEN-LAST:event_btnCancelarActionPerformed
 
-  private void actualizarArchivoConfiguracion(String nombreBanco, String cantidadCajas) {
-    try (BufferedWriter writer = new BufferedWriter(new FileWriter("prod.txt", false))) {
-        // Borra el contenido actual y escribe la nueva configuración
-        writer.write(nombreBanco);
-        writer.newLine();
-        writer.write(cantidadCajas);
-        writer.newLine();
-        writer.write("=================================");
-        writer.newLine();
+    private void actualizarArchivoConfiguracion(String nombreBanco, String cantidadCajas) {
+        File archivoProd = new File("prod.txt");
+        StringBuilder contenidoActual = new StringBuilder();
+        boolean bancoModificado = false;
 
-        JOptionPane.showMessageDialog(this, "Configuración actualizada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-    } catch (IOException e) {
-        JOptionPane.showMessageDialog(this, "Error al actualizar la configuración.", "Error", JOptionPane.ERROR_MESSAGE);
+        try {
+            //Leer archivo existente
+            if (archivoProd.exists()) {
+                try (BufferedReader reader = new BufferedReader(new FileReader(archivoProd))) {
+                    String linea;
+                    while ((linea = reader.readLine()) != null) {
+                        contenidoActual.append(linea).append(System.lineSeparator());
+                    }
+                }
+            }
+            //Comprobar si el banco ha cambiado
+            if (contenidoActual.length() > 0) {
+                String[] lineas = contenidoActual.toString().split(System.lineSeparator());
+                if (!lineas[0].equals(nombreBanco)) {
+                    bancoModificado = true;
+                }
+            } else {
+                bancoModificado = true; //Si el archivo estaba vacío, consideramos que el Banco se ha modificado
+            }
+            //Escribir en el archivo si el banco ha cambiado
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter("prod.txt", false))) {
+                // Borra el contenido actual y escribe la nueva configuración
+                writer.write(nombreBanco);
+                writer.newLine();
+                writer.write(cantidadCajas);
+                writer.newLine();
+                writer.write("=================================");
+                writer.newLine();
+
+                if (bancoModificado) {
+                    try (BufferedWriter reportesWriter = new BufferedWriter(new FileWriter("reportes.txt", false))){
+                        //limpiamos reportes
+                    }                    
+                }                 
+            }
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error al actualizar la configuración.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
-}
-    
-    
-    
-    
-    
+
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-    /* Set the Nimbus look and feel */
-    //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-    /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-     */
-    try {
-        for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-            if ("Nimbus".equals(info.getName())) {
-                javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                break;
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
             }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(SolicitudConfiguracion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(SolicitudConfiguracion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(SolicitudConfiguracion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(SolicitudConfiguracion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-    } catch (ClassNotFoundException ex) {
-        java.util.logging.Logger.getLogger(SolicitudConfiguracion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    } catch (InstantiationException ex) {
-        java.util.logging.Logger.getLogger(SolicitudConfiguracion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    } catch (IllegalAccessException ex) {
-        java.util.logging.Logger.getLogger(SolicitudConfiguracion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-        java.util.logging.Logger.getLogger(SolicitudConfiguracion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    }
-    //</editor-fold>
+        //</editor-fold>
 
-    /* Create and display the form */
-    java.awt.EventQueue.invokeLater(new Runnable() {
-        public void run() {
-            new SolicitudConfiguracion().setVisible(true);
-        }
-    });
-}
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new SolicitudConfiguracion().setVisible(true);
+            }
+        });
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancelar;

@@ -69,7 +69,7 @@ public class IngresarCliente extends javax.swing.JFrame {
         lblNombreDeBanco = new javax.swing.JLabel();
         btnIngresarCliente = new javax.swing.JButton();
         btnAtenderCliente = new javax.swing.JButton();
-        btnRoportes = new javax.swing.JButton();
+        btnReportes = new javax.swing.JButton();
         btnConfiguracionSistema = new javax.swing.JButton();
         lblNombreDeBanco1 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
@@ -97,7 +97,6 @@ public class IngresarCliente extends javax.swing.JFrame {
         jPanel2.setBackground(new java.awt.Color(46, 156, 94));
 
         lblNombreDeBanco.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        lblNombreDeBanco.setForeground(new java.awt.Color(0, 0, 0));
 
         btnIngresarCliente.setBackground(new java.awt.Color(46, 156, 94));
         btnIngresarCliente.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -114,13 +113,13 @@ public class IngresarCliente extends javax.swing.JFrame {
             }
         });
 
-        btnRoportes.setBackground(new java.awt.Color(46, 156, 94));
-        btnRoportes.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnRoportes.setForeground(new java.awt.Color(255, 255, 255));
-        btnRoportes.setText("Reportes");
-        btnRoportes.addActionListener(new java.awt.event.ActionListener() {
+        btnReportes.setBackground(new java.awt.Color(46, 156, 94));
+        btnReportes.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnReportes.setForeground(new java.awt.Color(255, 255, 255));
+        btnReportes.setText("Reportes");
+        btnReportes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRoportesActionPerformed(evt);
+                btnReportesActionPerformed(evt);
             }
         });
 
@@ -135,12 +134,10 @@ public class IngresarCliente extends javax.swing.JFrame {
         });
 
         lblNombreDeBanco1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        lblNombreDeBanco1.setForeground(new java.awt.Color(0, 0, 0));
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/Logo Cajas para bancos.png"))); // NOI18N
 
         lblTipoCambio.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        lblTipoCambio.setForeground(new java.awt.Color(0, 0, 0));
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -153,7 +150,7 @@ public class IngresarCliente extends javax.swing.JFrame {
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(btnIngresarCliente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btnAtenderCliente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnRoportes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnReportes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btnConfiguracionSistema, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -186,7 +183,7 @@ public class IngresarCliente extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnAtenderCliente)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnRoportes)
+                .addComponent(btnReportes)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnConfiguracionSistema)
                 .addGap(31, 31, 31)
@@ -197,27 +194,21 @@ public class IngresarCliente extends javax.swing.JFrame {
         );
 
         lblTitulo.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        lblTitulo.setForeground(new java.awt.Color(0, 0, 0));
         lblTitulo.setText("Ingresar Cliente");
 
         lblNombreCliente.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        lblNombreCliente.setForeground(new java.awt.Color(0, 0, 0));
         lblNombreCliente.setText("Nombre:");
 
         lblCedulaCliente.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        lblCedulaCliente.setForeground(new java.awt.Color(0, 0, 0));
         lblCedulaCliente.setText("Cedula:");
 
         lblEdadCliente.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        lblEdadCliente.setForeground(new java.awt.Color(0, 0, 0));
         lblEdadCliente.setText("Edad:");
 
         lblTramiteCliente.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        lblTramiteCliente.setForeground(new java.awt.Color(0, 0, 0));
         lblTramiteCliente.setText("Tramite");
 
         lblTipoCliente.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        lblTipoCliente.setForeground(new java.awt.Color(0, 0, 0));
         lblTipoCliente.setText("Tipo:");
 
         txtNombreCliente.addActionListener(new java.awt.event.ActionListener() {
@@ -259,7 +250,7 @@ public class IngresarCliente extends javax.swing.JFrame {
             }
         });
 
-        comboTipo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Preferencial", "Normal", "Rapido" }));
+        comboTipo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Preferencial", "Normal", "Rapida" }));
         comboTipo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 comboTipoActionPerformed(evt);
@@ -405,7 +396,7 @@ private int contadorTiquetes = 1;
 
         if (tipo.equals("Preferencial")) {
             listaPreferencial.agregarCliente(nuevoCliente);
-        } else if (tipo.equals("Rápido")) {
+        } else if (tipo.equals("Rapida")) {
             listaRapida.agregarCliente(nuevoCliente);
         } else {
             listaGeneral.agregarCliente(nuevoCliente);
@@ -487,11 +478,11 @@ private int contadorTiquetes = 1;
 
     }//GEN-LAST:event_btnConfiguracionSistemaActionPerformed
 
-    private void btnRoportesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRoportesActionPerformed
+    private void btnReportesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportesActionPerformed
         // TODO add your handling code here:
         new Reportes(listaPreferencial, listaRapida, listaGeneral).setVisible(true);
         this.dispose();
-    }//GEN-LAST:event_btnRoportesActionPerformed
+    }//GEN-LAST:event_btnReportesActionPerformed
 
     /**
      * @param args the command line arguments
@@ -534,7 +525,7 @@ private int contadorTiquetes = 1;
     private javax.swing.JButton btnConfiguracionSistema;
     private javax.swing.JButton btnGuardar;
     private javax.swing.JButton btnIngresarCliente;
-    private javax.swing.JButton btnRoportes;
+    private javax.swing.JButton btnReportes;
     private javax.swing.JComboBox<String> comboTipo;
     private javax.swing.JComboBox<String> comboTramite;
     private javax.swing.JLabel jLabel1;

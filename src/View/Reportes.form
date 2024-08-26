@@ -131,7 +131,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" max="-2" attributes="0">
                                   <Component id="btnConfiguracionSistema" max="32767" attributes="0"/>
-                                  <Component id="btnRoportes" alignment="1" max="32767" attributes="0"/>
+                                  <Component id="btnReportes" alignment="1" max="32767" attributes="0"/>
                                   <Component id="btnAtenderCliente" alignment="0" max="32767" attributes="0"/>
                                   <Component id="btnIngresarCliente" alignment="0" max="32767" attributes="0"/>
                                   <Group type="102" alignment="1" attributes="0">
@@ -175,7 +175,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="btnAtenderCliente" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="btnRoportes" min="-2" max="-2" attributes="0"/>
+                      <Component id="btnReportes" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="btnConfiguracionSistema" min="-2" max="-2" attributes="0"/>
                       <EmptySpace pref="69" max="32767" attributes="0"/>
@@ -234,7 +234,7 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnAtenderClienteActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JButton" name="btnRoportes">
+            <Component class="javax.swing.JButton" name="btnReportes">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="5e" green="9c" red="2e" type="rgb"/>

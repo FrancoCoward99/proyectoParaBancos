@@ -148,7 +148,7 @@
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="btnIngresarCliente" alignment="0" max="32767" attributes="0"/>
                                   <Component id="btnAtenderCliente" alignment="0" max="32767" attributes="0"/>
-                                  <Component id="btnRoportes" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="btnReportes" alignment="0" max="32767" attributes="0"/>
                                   <Component id="btnConfiguracionSistema" alignment="0" max="32767" attributes="0"/>
                               </Group>
                           </Group>
@@ -193,7 +193,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="btnAtenderCliente" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="btnRoportes" min="-2" max="-2" attributes="0"/>
+                      <Component id="btnReportes" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="btnConfiguracionSistema" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="31" max="-2" attributes="0"/>
@@ -244,7 +244,7 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnAtenderClienteActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JButton" name="btnRoportes">
+            <Component class="javax.swing.JButton" name="btnReportes">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="5e" green="9c" red="2e" type="rgb"/>
@@ -258,7 +258,7 @@
                 <Property name="text" type="java.lang.String" value="Reportes"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnRoportesActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnReportesActionPerformed"/>
               </Events>
             </Component>
             <Component class="javax.swing.JButton" name="btnConfiguracionSistema">
@@ -403,7 +403,7 @@
               <StringArray count="3">
                 <StringItem index="0" value="Preferencial"/>
                 <StringItem index="1" value="Normal"/>
-                <StringItem index="2" value="Rapido"/>
+                <StringItem index="2" value="Rapida"/>
               </StringArray>
             </Property>
           </Properties>
