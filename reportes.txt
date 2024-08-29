@@ -1,3 +1,0 @@
-Cliente{nombre='Daniela', id=801090347, edad=31, tramite='Retiros', tipo='Normal', horaCreacion=2024-08-25T22:21:12.581979300, horaAtencion=2024-08-25T22:21:26.132310300}
-Cliente{nombre='Juan', id=801090343, edad=71, tramite='Retiros', tipo='Preferencial', horaCreacion=2024-08-25T22:21:50.786511300, horaAtencion=2024-08-25T22:22:09.367279900}
-Cliente{nombre='Jean', id=114890462, edad=32, tramite='Retiros', tipo='Rapida', horaCreacion=2024-08-25T22:22:04.154903500, horaAtencion=2024-08-25T22:22:14.920597700}

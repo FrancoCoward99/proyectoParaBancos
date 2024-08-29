@@ -36,11 +36,11 @@ public class Reportes extends javax.swing.JFrame {
         this.listaPreferencial = listaPreferencial;
         this.listaRapida = listaRapida;
         this.listaGeneral = listaGeneral;
-   //     verificarYLimpiarHistoricoSiCambiaBanco(configuracion[0]);;        
+        //     verificarYLimpiarHistoricoSiCambiaBanco(configuracion[0]);;        
         generarReportes();
     }
-    
-   /*  // Método para verificar si el banco ha cambiado y limpiar el archivo si es necesario
+
+    /*  // Método para verificar si el banco ha cambiado y limpiar el archivo si es necesario
     private void verificarYLimpiarHistoricoSiCambiaBanco(String bancoActual) {
         try (BufferedReader reader = new BufferedReader(new FileReader("configBanco.txt"))) {
             String bancoAnterior = reader.readLine();
@@ -73,7 +73,6 @@ public class Reportes extends javax.swing.JFrame {
             return 0;
         }
     }*/
-
     private void generarReportes() {
         int totalClientesPreferencial = 0;
         int totalClientesRapida = 0;
@@ -88,12 +87,12 @@ public class Reportes extends javax.swing.JFrame {
 
         try (BufferedReader reader = new BufferedReader(new FileReader("reportes.txt"))) {
             String linea;
-            while ((linea = reader.readLine()) != null) {               
+            while ((linea = reader.readLine()) != null) {
                 //Parsear la información del cliente
                 if (linea.startsWith("Cliente")) {
                     String[] partes = linea.split(",");
                     //tipo de cliente
-                    String tipo = partes[4].split("=")[1].trim();                    
+                    String tipo = partes[4].split("=")[1].trim();
                     //parseamos las horas
                     String horaCreacionStr = partes[5].split("=")[1].trim();
                     String horaAtencionStr = partes[6].split("=")[1].replace('}', ' ').trim();
@@ -103,7 +102,7 @@ public class Reportes extends javax.swing.JFrame {
 
                     // Utilizamos el nuevo método para calcular el tiempo de atención
                     long tiempoAtencion = java.time.Duration.between(horaCreacion, horaAtencion).getSeconds();
-                   // long tiempoAtencion = (long) calcularTiempoAtencion(horaCreacion, horaAtencion);
+                    // long tiempoAtencion = (long) calcularTiempoAtencion(horaCreacion, horaAtencion);
                     totalClientesAtendidos++;
                     totalTiempoAtencion += tiempoAtencion;
 
@@ -133,15 +132,22 @@ public class Reportes extends javax.swing.JFrame {
         //int totalRapida = listaRapida.getSize();
         //int totalGeneral = listaGeneral.getSize();
         //Determinar la caja que atendió mayor cantidad de clientes
-        String cajaMayor = "Preferencial";
-        int maxClientes = totalClientesPreferencial;//totalPreferencial;
+        String cajaMayor = null;
+        int maxClientes = 0;//totalPreferencial;
+        
+        
+        
+        if (totalClientesPreferencial > maxClientes) {//totalRapida > maxClientes) {
+            cajaMayor = "Preferencial";
+            maxClientes = totalClientesPreferencial; //totalPreferencial;
+        }
 
-        if (totalClientesRapida > maxClientes) {//totalRapida > maxClientes) {
+        else if (totalClientesRapida > maxClientes) {//totalRapida > maxClientes) {
             cajaMayor = "Rapida";
             maxClientes = totalClientesRapida; //totalRapida;
         }
 
-        if (totalClientesGeneral > maxClientes) {//totalGeneral > maxClientes) {
+        else if (totalClientesGeneral > maxClientes) {//totalGeneral > maxClientes) {
             cajaMayor = "General";
             maxClientes = totalClientesGeneral;//totalGeneral;
         }
@@ -161,19 +167,22 @@ public class Reportes extends javax.swing.JFrame {
         //double promedioGeneral = calcularPromedioAtencion(listaGeneral);
         //Caja con el mejor tiempo de atención promedio
         //String cajaMejorTiempo = "Preferencial";
-        String cajaMejorTiempo = null;
+        String cajaMejorTiempo = "";
         double mejorTiempo = Double.MAX_VALUE;
-        //double mejorTiempo = totalClientesPreferencial > 0 ? (double) totalTiempoPreferencial / totalClientesPreferencial : Double.MAX_VALUE;//promedioPreferencial;
 
         if (totalClientesPreferencial > 0) {
             double tiempoPromedioPreferencial = (double) totalTiempoPreferencial / totalClientesPreferencial;
-            mejorTiempo = tiempoPromedioPreferencial;
-            cajaMejorTiempo = "Preferencial";
+            System.out.println("Tiempo promedio Preferencial: " + tiempoPromedioPreferencial);
+            if (tiempoPromedioPreferencial < mejorTiempo) {
+                mejorTiempo = tiempoPromedioPreferencial;
+                cajaMejorTiempo = "Preferencial";
+            }
         }
 
         if (totalClientesRapida > 0) {
             double tiempoPromedioRapida = (double) totalTiempoRapida / totalClientesRapida;
-            if (tiempoPromedioRapida < mejorTiempo || cajaMejorTiempo == null) {
+            System.out.println("Tiempo promedio Rápida: " + tiempoPromedioRapida);
+            if (tiempoPromedioRapida < mejorTiempo) {
                 mejorTiempo = tiempoPromedioRapida;
                 cajaMejorTiempo = "Rapida";
             }
@@ -181,26 +190,21 @@ public class Reportes extends javax.swing.JFrame {
 
         if (totalClientesGeneral > 0) {
             double tiempoPromedioGeneral = (double) totalTiempoGeneral / totalClientesGeneral;
-            if (tiempoPromedioGeneral < mejorTiempo || cajaMejorTiempo == null) {
+            System.out.println("Tiempo promedio General: " + tiempoPromedioGeneral);
+            if (tiempoPromedioGeneral < mejorTiempo) {
                 mejorTiempo = tiempoPromedioGeneral;
                 cajaMejorTiempo = "General";
             }
         }
-        /* if (totalClientesRapida > 0 && (double) totalTiempoRapida / totalClientesRapida < mejorTiempo) {//promedioRapida < mejorTiempo) {
-            cajaMejorTiempo = "Rapida";
-            mejorTiempo = (double) totalTiempoRapida / totalClientesRapida;//promedioRapida;
-        }
 
-        if (totalClientesGeneral > 0 && (double) totalTiempoGeneral / totalClientesGeneral < mejorTiempo) {//promedioGeneral < mejorTiempo) {
-            cajaMejorTiempo = "General";
-            mejorTiempo = (double) totalTiempoGeneral / totalClientesGeneral;//promedioGeneral;
-        }*/
-        // Si no se ha asignado ninguna caja (lo que significa que no hubo clientes atendidos), manejar el caso
+// Si no se ha asignado ninguna caja (lo que significa que no hubo clientes atendidos), manejar el caso
         if (cajaMejorTiempo == null) {
             txtReporte3.setText("No hay datos suficientes para determinar la caja con el mejor tiempo de atención");
         } else {
             txtReporte3.setText(cajaMejorTiempo + " (" + String.format("%.2f", mejorTiempo) + " seg)");
         }
+
+        System.out.println("Caja con mejor tiempo de atención: " + cajaMejorTiempo);
 
         /*txtReporte3.setText(cajaMejorTiempo + " (" + String.format("%.2f", mejorTiempo) + " seg)");*/
         // Reporte 4: Tiempo promedio de atención General
@@ -208,23 +212,6 @@ public class Reportes extends javax.swing.JFrame {
         txtReporte4.setText(String.format("%.2f segundos", tiempoPromedioGeneral));
     }
 
-    /*private double calcularPromedioAtencion(ListaDobleClientes lista) {
-        NodoCliente actual = lista.getCabeza();
-        long totalTiempo = 0;
-        int contador = 0;
-
-        while (actual != null) {
-            Cliente cliente = actual.getCliente();
-            if (cliente.getHoraAtencion() != null && cliente.getHoraCreacion() != null) {
-                long tiempoAtencion = cliente.getHoraAtencion().getSecond() - cliente.getHoraCreacion().getSecond();
-                totalTiempo += tiempoAtencion;
-                contador++;
-            }
-            actual = actual.getSiguiente();
-        }
-
-        return contador > 0 ? (double) totalTiempo / contador : Double.MAX_VALUE;
-    }*/   
 
     public String[] leerConfiguracion() {
         String[] configuracion = new String[2];
@@ -499,9 +486,9 @@ public class Reportes extends javax.swing.JFrame {
 
     private void btnAtenderClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAtenderClienteActionPerformed
         // TODO add your handling code here:       
- //       ListaDobleClientes listaPreferencial = new ListaDobleClientes();
-   //     ListaDobleClientes listaRapida = new ListaDobleClientes();
-     //   ListaDobleClientes listaGeneral = new ListaDobleClientes();
+        //       ListaDobleClientes listaPreferencial = new ListaDobleClientes();
+        //     ListaDobleClientes listaRapida = new ListaDobleClientes();
+        //   ListaDobleClientes listaGeneral = new ListaDobleClientes();
 
         new AtenderCliente(listaPreferencial, listaRapida, listaGeneral).setVisible(true);
 
